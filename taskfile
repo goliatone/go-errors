@@ -93,6 +93,14 @@ function dev:test {
     lgr exec -- go test -v ./...
 }
 
+function dev:cover {
+    lgr exec -- go test -cover ./...
+}
+
+function dev:bench {
+    lgr exec -- go test -bench=. ./...
+}
+
 ##
 ## ########################################
 ##           Version Management
