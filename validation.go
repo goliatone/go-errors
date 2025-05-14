@@ -75,7 +75,7 @@ func NewValidationFromGroups(message string, groups map[string][]string) *Error 
 	}
 }
 
-func GetValiationErrors(err error) (ValidationErrors, bool) {
+func GetValidationErrors(err error) (ValidationErrors, bool) {
 	var e *Error
 	if As(err, &e) && e.Category == CategoryValidation {
 		return e.ValidationErrors, true
