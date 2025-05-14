@@ -100,12 +100,29 @@ func (e *Error) WithTextCode(code string) *Error {
 }
 
 func (e *Error) MarshalJSON() ([]byte, error) {
-	type alias Error
-	aux := struct {
-		*alias
-		Source string `json:"source,omitempty"`
-	}{
-		alias: (*alias)(e),
+	type alias struct {
+		Category         Category         `json:"category"`
+		Code             int              `json:"code,omitempty"`
+		TextCode         string           `json:"text_code,omitempty"`
+		Message          string           `json:"message"`
+		Source           string           `json:"source,omitempty"`
+		ValidationErrors ValidationErrors `json:"validation_errors,omitempty"`
+		Metadata         map[string]any   `json:"metadata,omitempty"`
+		RequestID        string           `json:"request_id,omitempty"`
+		Timestamp        string           `json:"timestamp"`
+		StackTrace       StackTrace       `json:"stack_trace,omitempty"`
+	}
+
+	aux := alias{
+		Category:         e.Category,
+		Code:             e.Code,
+		TextCode:         e.TextCode,
+		Message:          e.Message,
+		ValidationErrors: e.ValidationErrors,
+		Metadata:         e.Metadata,
+		RequestID:        e.RequestID,
+		Timestamp:        e.Timestamp.Format(time.RFC3339),
+		StackTrace:       e.StackTrace,
 	}
 
 	if e.Source != nil {
