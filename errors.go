@@ -1,0 +1,134 @@
+package errors
+
+import (
+	"encoding/json"
+	goerrors "errors"
+	"fmt"
+	"maps"
+	"strings"
+	"time"
+)
+
+// Global behavior
+var (
+	Verbose       = false
+	IsDevelopment = false
+)
+
+var (
+	As = goerrors.As
+	Is = goerrors.Is
+)
+
+type Error struct {
+	Category         Category         `json:"category"`
+	Code             int              `json:"code,omitempty"`
+	TextCode         string           `json:"text_code,omitempty"`
+	Message          string           `json:"message"`
+	Source           error            `json:"-"`
+	ValidationErrors ValidationErrors `json:"validation_errors,omitempty"`
+	Metadata         map[string]any   `json:"metadata,omitempty"`
+	RequestID        string           `json:"request_id,omitempty"`
+	Timestamp        time.Time        `json:"timestamp"`
+	StackTrace       StackTrace       `json:"stack_trace,omitempty"`
+}
+
+func (e *Error) Error() string {
+	var parts []string
+
+	if e.TextCode != "" {
+		parts = append(parts, fmt.Sprintf("[%s:%s] %s", e.Category, e.TextCode, e.Message))
+	} else {
+		parts = append(parts, fmt.Sprintf("[%s] %s", e.Category, e.Message))
+	}
+
+	if len(e.ValidationErrors) > 0 {
+		parts = append(parts, fmt.Sprintf("validation: %s", e.ValidationErrors.Error()))
+	}
+
+	if e.Source != nil {
+		parts = append(parts, fmt.Sprintf("source: %v", e.Source))
+	}
+
+	if len(e.Metadata) > 0 {
+		parts = append(parts, fmt.Sprintf("metadata: %d items", len(e.Metadata)))
+	}
+
+	return strings.Join(parts, "; ")
+}
+
+func (e *Error) ErrorWithStack() string {
+	base := e.Error()
+	if len(e.StackTrace) > 0 {
+		return base + "\n\nStack Trace:\n" + e.StackTrace.String()
+	}
+	return base
+}
+
+func (e *Error) Unwrap() error {
+	return e.Source
+}
+
+func (e *Error) WithMetadata(meta map[string]any) *Error {
+	if e.Metadata == nil {
+		e.Metadata = make(map[string]any)
+	}
+	maps.Copy(e.Metadata, meta)
+	return e
+}
+
+// TODO: either remove or rename to WithTraceID
+func (e *Error) WithRequestID(id string) *Error {
+	e.RequestID = id
+	return e
+}
+
+func (e *Error) WithStackTrace() *Error {
+	e.StackTrace = CaptureStackTrace(1)
+	return e
+}
+
+func (e *Error) WithCode(code int) *Error {
+	e.Code = code
+	return e
+}
+
+func (e *Error) WithTextCode(code string) *Error {
+	e.TextCode = code
+	return e
+}
+
+func (e *Error) MarshalJSON() ([]byte, error) {
+	type alias Error
+	aux := struct {
+		*alias
+		Source string `json:"source,omitempty"`
+	}{
+		alias: (*alias)(e),
+	}
+
+	if e.Source != nil {
+		aux.Source = e.Source.Error()
+	}
+
+	return json.Marshal(aux)
+}
+
+// New creates a new Error with the specified category and message
+func New(category Category, message string) *Error {
+	return &Error{
+		Category:  category,
+		Message:   message,
+		Timestamp: time.Now(),
+	}
+}
+
+// Wrap creates a new Error that wraps an existing error
+func Wrap(source error, category Category, message string) *Error {
+	return &Error{
+		Category:  category,
+		Message:   message,
+		Source:    source,
+		Timestamp: time.Now(),
+	}
+}
