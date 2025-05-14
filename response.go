@@ -22,6 +22,7 @@ func (e *Error) ToErrorResponse(includeStack bool, stackTrace StackTrace) ErrorR
 	return response
 }
 
+// MapToError converts any error to our Error type using provided mappers
 func MapToError(err error, mappers []ErrorMapper) *Error {
 	var customErr *Error
 	if As(err, &customErr) {
