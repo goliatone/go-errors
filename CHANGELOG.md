@@ -1,5 +1,21 @@
 # Changelog
 
+# [0.2.0](https://github.com/goliatone/go-errors/compare/v0.1.0...v0.2.0) - (2025-05-14)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.2.0 ([9ed5e06](https://github.com/goliatone/go-errors/commit/9ed5e06a44a56da057564d799ade086cd20b5b6d))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- Use custom json marshaller to configure output ([bc0d5b6](https://github.com/goliatone/go-errors/commit/bc0d5b6b8f72f3d137c6796e93dc3c9cc679aa79))  - (goliatone)
+- Response struct to wrap errors ([05e4818](https://github.com/goliatone/go-errors/commit/05e4818567a2ad8b9144c88baa79d2fee0797020))  - (goliatone)
+- Response struct to wrap errors ([edc9db4](https://github.com/goliatone/go-errors/commit/edc9db4223e3716dc039fd31305515a2d64a5ab7))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.1.0 ([6ce25af](https://github.com/goliatone/go-errors/commit/6ce25afd8a24248be8944010d6af6c35b6695f86))  - (goliatone)
+
 # [0.1.0](https://github.com/goliatone/go-errors/tree/v0.1.0) - (2025-05-14)
 
 ## <!-- 1 -->🐛 Bug Fixes
