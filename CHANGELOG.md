@@ -1,5 +1,28 @@
 # Changelog
 
+# [0.3.0](https://github.com/goliatone/go-errors/compare/v0.2.0...v0.3.0) - (2025-05-14)
+
+## <!-- 1 -->🐛 Bug Fixes
+
+- Typo. add: String method to Category ([8865e53](https://github.com/goliatone/go-errors/commit/8865e53f167d1f9ed65f79d3923cfa9f5d711bb0))  - (goliatone)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.3.0 ([cb1f89f](https://github.com/goliatone/go-errors/commit/cb1f89f9a6f8e892f2ab91bea494574b294a3ebe))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- Helpers to map common errors ([d91202a](https://github.com/goliatone/go-errors/commit/d91202a9b8d6d3e5be61c3ed027736e5e6fa7acf))  - (goliatone)
+- Test mappers ([c92ec2c](https://github.com/goliatone/go-errors/commit/c92ec2cff80046008ca5fb1c76a4de1bae04cac1))  - (goliatone)
+
+## <!-- 2 -->🚜 Refactor
+
+- Change WithMetadata to take variadic args ([d49785e](https://github.com/goliatone/go-errors/commit/d49785ed224aebfe27ef57268817ba9fb4dafc73))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.2.0 ([bd456ed](https://github.com/goliatone/go-errors/commit/bd456ed828d93137d319c283c8d79780cfcc920d))  - (goliatone)
+
 # [0.2.0](https://github.com/goliatone/go-errors/compare/v0.1.0...v0.2.0) - (2025-05-14)
 
 ## <!-- 13 -->📦 Bumps
