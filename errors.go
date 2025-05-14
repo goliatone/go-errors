@@ -16,8 +16,9 @@ var (
 )
 
 var (
-	As = goerrors.As
-	Is = goerrors.Is
+	As     = goerrors.As
+	Is     = goerrors.Is
+	Unwrap = goerrors.Unwrap
 )
 
 type Error struct {
