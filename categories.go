@@ -3,6 +3,8 @@ package errors
 // Category represents a high level error category
 type Category string
 
+func (c Category) String() string { return string(c) }
+
 const (
 	CategoryValidation       Category = "validation"
 	CategoryAuth             Category = "authentication"
@@ -13,7 +15,7 @@ const (
 	CategoryBadInput         Category = "bad_input"
 	CategoryInternal         Category = "internal"
 	CategoryExternal         Category = "external"
-	CateogryMiddleware       Category = "middleware"
+	CategoryMiddleware       Category = "middleware"
 	CategoryRouting          Category = "routing"
 	CategoryHandler          Category = "handler"
 	CategoryMethodNotAllowed Category = "method_not_allowed"
