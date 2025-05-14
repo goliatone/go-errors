@@ -70,11 +70,15 @@ func (e *Error) Unwrap() error {
 	return e.Source
 }
 
-func (e *Error) WithMetadata(meta map[string]any) *Error {
+func (e *Error) WithMetadata(metas ...map[string]any) *Error {
 	if e.Metadata == nil {
 		e.Metadata = make(map[string]any)
 	}
-	maps.Copy(e.Metadata, meta)
+
+	for _, meta := range metas {
+		maps.Copy(e.Metadata, meta)
+	}
+
 	return e
 }
 
