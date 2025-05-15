@@ -1,5 +1,21 @@
 # Changelog
 
+# [0.4.0](https://github.com/goliatone/go-errors/compare/v0.3.0...v0.4.0) - (2025-05-15)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.4.0 ([324c087](https://github.com/goliatone/go-errors/commit/324c087d4e210fa3db0a39961ecf98695024007a))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- Update deps ([b5ed789](https://github.com/goliatone/go-errors/commit/b5ed789eaa781be38bf93a9a3471cc7875c48a70))  - (goliatone)
+- Helper method to return validation map ([b19ccf6](https://github.com/goliatone/go-errors/commit/b19ccf6317b1c500d430e8bde195e61b1eda841f))  - (goliatone)
+- Ozzo validation helper ([340f5dc](https://github.com/goliatone/go-errors/commit/340f5dc55ee0398d1806225998886016a2935b74))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.3.0 ([acb2c61](https://github.com/goliatone/go-errors/commit/acb2c61d698b1552151b755de132c9cbdd3820ef))  - (goliatone)
+
 # [0.3.0](https://github.com/goliatone/go-errors/compare/v0.2.0...v0.3.0) - (2025-05-14)
 
 ## <!-- 1 -->🐛 Bug Fixes
