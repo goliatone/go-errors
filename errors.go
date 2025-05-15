@@ -103,6 +103,16 @@ func (e *Error) WithTextCode(code string) *Error {
 	return e
 }
 
+// ValidationMap returns validation errors as a map
+// for easy template usage
+func (e *Error) ValiationMap() map[string]string {
+	result := make(map[string]string)
+	for _, fieldErr := range e.ValidationErrors {
+		result[fieldErr.Field] = fieldErr.Message
+	}
+	return result
+}
+
 func (e *Error) MarshalJSON() ([]byte, error) {
 	type alias struct {
 		Category         Category         `json:"category"`
