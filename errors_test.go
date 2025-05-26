@@ -255,7 +255,7 @@ func TestNew(t *testing.T) {
 	category := errors.CategoryNotFound
 	message := "resource not found"
 
-	err := errors.New(category, message)
+	err := errors.New(message, category)
 
 	if err.Category != category {
 		t.Errorf("Expected Category=%v, got %v", category, err.Category)
