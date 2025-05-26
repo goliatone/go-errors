@@ -21,7 +21,7 @@ func TestErrorMappers(t *testing.T) {
 		func(err error) *errors.Error {
 			var ce customError
 			if stdErrors.As(err, &ce) {
-				return errors.New(errors.CategoryExternal, ce.message).
+				return errors.New(ce.message, errors.CategoryExternal).
 					WithCode(ce.code).
 					WithTextCode("CUSTOM_ERROR")
 			}
