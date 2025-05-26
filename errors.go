@@ -19,6 +19,7 @@ var (
 	As     = goerrors.As
 	Is     = goerrors.Is
 	Unwrap = goerrors.Unwrap
+	Join   = goerrors.Join
 )
 
 type Error struct {
@@ -147,7 +148,7 @@ func (e *Error) MarshalJSON() ([]byte, error) {
 }
 
 // New creates a new Error with the specified category and message
-func New(category Category, message string) *Error {
+func New(message string, category Category) *Error {
 	return &Error{
 		Category:  category,
 		Message:   message,
