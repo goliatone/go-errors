@@ -1,5 +1,30 @@
 # Changelog
 
+# [0.5.0](https://github.com/goliatone/go-errors/compare/v0.4.0...v0.5.0) - (2025-05-26)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.5.0 ([a648ea9](https://github.com/goliatone/go-errors/commit/a648ea94a688c44f3ff17e0d7dff8fc4c4b6009a))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- RetryableError to encapsulate some retry logic ([ffbf159](https://github.com/goliatone/go-errors/commit/ffbf159f7cd39335565fe6ec1ad3e4fddd239452))  - (goliatone)
+
+## <!-- 2 -->🚜 Refactor
+
+- Switch order for New error to be similar to native ([76b4792](https://github.com/goliatone/go-errors/commit/76b47920786ea7a52a2ebcbce319643877b26220))  - (goliatone)
+- Switch order for New error to be similar to native ([adb799a](https://github.com/goliatone/go-errors/commit/adb799a33914ce6bed94c195472811eaa21a6b4e))  - (goliatone)
+- Switch order for New error to be similar to native ([935290f](https://github.com/goliatone/go-errors/commit/935290f2515e720058f4a2ad13a5fb2c11cd7c1e))  - (goliatone)
+- Switch order for New error to be similar to native ([33513bd](https://github.com/goliatone/go-errors/commit/33513bdb0ed734bc7264870e59acdddd9313a0aa))  - (goliatone)
+
+## <!-- 22 -->🚧 WIP
+
+- Categories ([b733add](https://github.com/goliatone/go-errors/commit/b733adddf6a99a7d857c0863c681149b5421e40d))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.4.0 ([e271b80](https://github.com/goliatone/go-errors/commit/e271b803e2e366a4c583f70c4ecd7ce0ad142028))  - (goliatone)
+
 # [0.4.0](https://github.com/goliatone/go-errors/compare/v0.3.0...v0.4.0) - (2025-05-15)
 
 ## <!-- 13 -->📦 Bumps
