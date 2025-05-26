@@ -60,7 +60,7 @@ func MapHTTPErrors(err error) *Error {
 		code := httpErr.StatusCode()
 		category := HTTPStatusToCategory(code)
 
-		result := New(category, err.Error()).
+		result := New(err.Error(), category).
 			WithCode(code).
 			WithTextCode(HTTPStatusToTextCode(code))
 
@@ -74,15 +74,15 @@ func MapAuthErrors(err error) *Error {
 	errMsg := err.Error()
 	switch {
 	case strings.Contains(errMsg, "unauthorized") || strings.Contains(errMsg, "authentication"):
-		return New(CategoryAuth, err.Error()).
+		return New(err.Error(), CategoryAuth).
 			WithCode(http.StatusUnauthorized).
 			WithTextCode("UNAUTHORIZED")
 	case strings.Contains(errMsg, "forbidden") || strings.Contains(errMsg, "authorization"):
-		return New(CategoryAuthz, err.Error()).
+		return New(err.Error(), CategoryAuthz).
 			WithCode(http.StatusForbidden).
 			WithTextCode("FORBIDDEN")
 	case strings.Contains(errMsg, "token expired"):
-		return New(CategoryAuth, err.Error()).
+		return New(err.Error(), CategoryAuth).
 			WithCode(http.StatusUnauthorized).
 			WithTextCode("TOKEN_EXPIRED")
 	}
