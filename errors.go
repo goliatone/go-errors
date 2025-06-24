@@ -169,3 +169,15 @@ func Wrap(source error, category Category, message string) *Error {
 		Timestamp: time.Now(),
 	}
 }
+
+// IsWrapped checks if an error is already wrapped by our custom error types
+func IsWrapped(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	var customErr *Error
+	var retryableErr *RetryableError
+
+	return As(err, &customErr) || As(err, &retryableErr)
+}
