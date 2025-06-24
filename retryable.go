@@ -98,13 +98,13 @@ func NewNonRetryable(message string, category Category) *RetryableError {
 // NewRetryableOperation creates a retryable error for operation failures
 // with a short delay of 500 millis by default
 func NewRetryableOperation(message string, delay ...time.Duration) *RetryableError {
-	var del time.Duration = 500
+	var del time.Duration = 500 * time.Millisecond
 	if len(delay) > 0 {
 		del = delay[0]
 	}
 
 	return NewRetryable(message, CategoryOperation).
-		WithRetryDelay(del * time.Millisecond)
+		WithRetryDelay(del)
 }
 
 // NewRetryableExternal creates a retryable error for an external service
