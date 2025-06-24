@@ -2,11 +2,20 @@ package errors
 
 import "time"
 
+type BaseError = Error
+
 // RetryableError extends Error with retry functionality
 type RetryableError struct {
-	*Error
+	*BaseError
 	retryable bool
 	baseDelay time.Duration
+}
+
+func (r *RetryableError) Error() string {
+	if r.BaseError != nil {
+		return r.BaseError.Error()
+	}
+	return "retryable error: <nil>"
 }
 
 // IsRetryable returns whether this error should trigger a retry
@@ -45,28 +54,28 @@ func (r *RetryableError) WithRetryDelay(delay time.Duration) *RetryableError {
 }
 
 func (r *RetryableError) WithMetadata(metas ...map[string]any) *RetryableError {
-	r.Error.WithMetadata(metas...)
+	r.BaseError.WithMetadata(metas...)
 	return r
 }
 
 func (r *RetryableError) WithStackTrace() *RetryableError {
-	r.Error.WithStackTrace()
+	r.BaseError.WithStackTrace()
 	return r
 }
 
 func (r *RetryableError) WithCode(code int) *RetryableError {
-	r.Error.WithCode(code)
+	r.BaseError.WithCode(code)
 	return r
 }
 
 func (r *RetryableError) WithTextCode(code string) *RetryableError {
-	r.Error.TextCode = code
+	r.BaseError.TextCode = code
 	return r
 }
 
 func NewRetryable(message string, category Category) *RetryableError {
 	return &RetryableError{
-		Error:     New(message, category),
+		BaseError: New(message, category),
 		retryable: true,
 		baseDelay: 1 * time.Second,
 	}
@@ -74,7 +83,7 @@ func NewRetryable(message string, category Category) *RetryableError {
 
 func WrapRetryable(source error, category Category, message string) *RetryableError {
 	return &RetryableError{
-		Error:     Wrap(source, category, message),
+		BaseError: Wrap(source, category, message),
 		retryable: true,
 		baseDelay: 1 * time.Second,
 	}
