@@ -1,5 +1,19 @@
 # Changelog
 
+# [0.5.2](https://github.com/goliatone/go-errors/compare/v0.5.1...v0.5.2) - (2025-06-24)
+
+## <!-- 1 -->🐛 Bug Fixes
+
+- Ensure we have proper category test ([ddc927a](https://github.com/goliatone/go-errors/commit/ddc927a6e4863ca6554313147c8f445bf5b89521))  - (goliatone)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.5.2 ([a3e796b](https://github.com/goliatone/go-errors/commit/a3e796b9f849901c5dc3fbfcfebe0ce92c165eee))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.5.1 ([ff06c8c](https://github.com/goliatone/go-errors/commit/ff06c8c21e02c00f8779ddb17c31c511f1d41c52))  - (goliatone)
+
 # [0.5.1](https://github.com/goliatone/go-errors/compare/v0.5.0...v0.5.1) - (2025-06-24)
 
 ## <!-- 13 -->📦 Bumps
