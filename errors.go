@@ -148,9 +148,13 @@ func (e *Error) MarshalJSON() ([]byte, error) {
 }
 
 // New creates a new Error with the specified category and message
-func New(message string, category Category) *Error {
+func New(message string, category ...Category) *Error {
+	cat := CategoryInternal
+	if len(category) > 0 {
+		cat = category[0]
+	}
 	return &Error{
-		Category:  category,
+		Category:  cat,
 		Message:   message,
 		Timestamp: time.Now(),
 	}
