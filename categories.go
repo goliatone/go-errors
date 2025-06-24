@@ -28,10 +28,20 @@ const (
 )
 
 func IsCategory(err error, category Category) bool {
+	if err == nil {
+		return false
+	}
+
 	var e *Error
 	if As(err, &e) {
 		return e.Category == category
 	}
+
+	var retryableErr *RetryableError
+	if As(err, &retryableErr) && retryableErr.BaseError != nil {
+		return retryableErr.BaseError.Category == category
+	}
+
 	return false
 }
 
