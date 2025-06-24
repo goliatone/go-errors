@@ -1,5 +1,29 @@
 # Changelog
 
+# [0.5.1](https://github.com/goliatone/go-errors/compare/v0.5.0...v0.5.1) - (2025-06-24)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.5.1 ([1e7806a](https://github.com/goliatone/go-errors/commit/1e7806ae3bbf6e00fa98634971885864e4781eea))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- Function IsWrapper ([437d2ac](https://github.com/goliatone/go-errors/commit/437d2ac34cda9595c3a5e1744d80f38238bbfa35))  - (goliatone)
+- Function IsWrapper ([66d1b69](https://github.com/goliatone/go-errors/commit/66d1b69385d71c87cdd2f8c93df04b860a1afd3d))  - (goliatone)
+
+## <!-- 2 -->🚜 Refactor
+
+- RetryableError did not implement Error interface ([cbb0756](https://github.com/goliatone/go-errors/commit/cbb0756f94385ed853f3632c367be4b85b1e22c9))  - (goliatone)
+- Make category optional ([5c65ff8](https://github.com/goliatone/go-errors/commit/5c65ff8a94fb9610534cdeaf13d08ee03853b346))  - (goliatone)
+
+## <!-- 22 -->🚧 WIP
+
+- Adding error codes ([2c0d2e3](https://github.com/goliatone/go-errors/commit/2c0d2e37e32333338383e07969c29d55eddd8eba))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.5.0 ([cc57820](https://github.com/goliatone/go-errors/commit/cc57820282b89d3e4d14422a7e51e2f3b5724d8a))  - (goliatone)
+
 # [0.5.0](https://github.com/goliatone/go-errors/compare/v0.4.0...v0.5.0) - (2025-05-26)
 
 ## <!-- 13 -->📦 Bumps
