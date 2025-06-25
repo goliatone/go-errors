@@ -107,7 +107,6 @@ func TestError_Unwrap(t *testing.T) {
 		t.Errorf("Unwrap() = %v, want %v", unwrapped, sourceErr)
 	}
 
-	// Test with no source error
 	errNoSource := &errors.Error{
 		Category: errors.CategoryNotFound,
 		Message:  "not found",
@@ -126,13 +125,11 @@ func TestError_WithMetadata(t *testing.T) {
 	meta1 := map[string]any{"key1": "value1"}
 	meta2 := map[string]any{"key2": "value2", "key1": "overwritten"}
 
-	// Test first metadata addition
 	err = err.WithMetadata(meta1)
 	if err.Metadata["key1"] != "value1" {
 		t.Errorf("Expected key1=value1, got %v", err.Metadata["key1"])
 	}
 
-	// Test metadata merging and overwriting
 	err = err.WithMetadata(meta2)
 	if err.Metadata["key1"] != "overwritten" {
 		t.Errorf("Expected key1=overwritten, got %v", err.Metadata["key1"])
@@ -168,7 +165,6 @@ func TestError_WithStackTrace(t *testing.T) {
 		t.Error("Expected stack trace to be captured")
 	}
 
-	// Verify that the stack trace contains this test function
 	found := false
 	for _, frame := range err.StackTrace {
 		if strings.Contains(frame.Function, "TestError_WithStackTrace") {
@@ -236,7 +232,6 @@ func TestError_MarshalJSON(t *testing.T) {
 		t.Fatalf("Failed to unmarshal error: %v", unmarshalErr)
 	}
 
-	// Verify key fields
 	if unmarshaled["category"] != "validation" {
 		t.Errorf("Expected category=validation, got %v", unmarshaled["category"])
 	}
@@ -323,7 +318,6 @@ func TestError_ErrorWithStack(t *testing.T) {
 		t.Error("Expected stack trace content in ErrorWithStack output")
 	}
 
-	// Test without stack trace
 	errNoStack := &errors.Error{
 		Category: errors.CategoryInternal,
 		Message:  "internal error",
@@ -335,7 +329,6 @@ func TestError_ErrorWithStack(t *testing.T) {
 	}
 }
 
-// Benchmark tests
 func BenchmarkError_Error(b *testing.B) {
 	err := &errors.Error{
 		Category: errors.CategoryValidation,
@@ -388,5 +381,174 @@ func BenchmarkError_MarshalJSON(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, _ = json.Marshal(err)
+	}
+}
+
+func TestError_ValidationMap(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      *errors.Error
+		expected map[string]string
+	}{
+		{
+			name: "empty validation errors",
+			err: &errors.Error{
+				Category: errors.CategoryValidation,
+				Message:  "validation failed",
+			},
+			expected: map[string]string{},
+		},
+		{
+			name: "single validation error",
+			err: &errors.Error{
+				Category: errors.CategoryValidation,
+				Message:  "validation failed",
+				ValidationErrors: errors.ValidationErrors{
+					{Field: "email", Message: "invalid format"},
+				},
+			},
+			expected: map[string]string{
+				"email": "invalid format",
+			},
+		},
+		{
+			name: "multiple validation errors",
+			err: &errors.Error{
+				Category: errors.CategoryValidation,
+				Message:  "validation failed",
+				ValidationErrors: errors.ValidationErrors{
+					{Field: "email", Message: "invalid format"},
+					{Field: "name", Message: "required"},
+					{Field: "age", Message: "must be positive"},
+				},
+			},
+			expected: map[string]string{
+				"email": "invalid format",
+				"name":  "required",
+				"age":   "must be positive",
+			},
+		},
+		{
+			name: "duplicate field names (last one wins)",
+			err: &errors.Error{
+				Category: errors.CategoryValidation,
+				Message:  "validation failed",
+				ValidationErrors: errors.ValidationErrors{
+					{Field: "email", Message: "invalid format"},
+					{Field: "email", Message: "required"},
+				},
+			},
+			expected: map[string]string{
+				"email": "required",
+			},
+		},
+		{
+			name: "validation errors with empty field or message",
+			err: &errors.Error{
+				Category: errors.CategoryValidation,
+				Message:  "validation failed",
+				ValidationErrors: errors.ValidationErrors{
+					{Field: "", Message: "empty field"},
+					{Field: "name", Message: ""},
+					{Field: "email", Message: "valid message"},
+				},
+			},
+			expected: map[string]string{
+				"":      "empty field",
+				"name":  "",
+				"email": "valid message",
+			},
+		},
+		{
+			name: "nil validation errors slice",
+			err: &errors.Error{
+				Category:         errors.CategoryValidation,
+				Message:          "validation failed",
+				ValidationErrors: nil,
+			},
+			expected: map[string]string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.err.ValidationMap()
+
+			if len(got) != len(tt.expected) {
+				t.Errorf("ValidationMap() returned map with %d entries, want %d", len(got), len(tt.expected))
+			}
+
+			for expectedKey, expectedValue := range tt.expected {
+				if gotValue, exists := got[expectedKey]; !exists {
+					t.Errorf("ValidationMap() missing key %q", expectedKey)
+				} else if gotValue != expectedValue {
+					t.Errorf("ValidationMap()[%q] = %q, want %q", expectedKey, gotValue, expectedValue)
+				}
+			}
+
+			for gotKey := range got {
+				if _, exists := tt.expected[gotKey]; !exists {
+					t.Errorf("ValidationMap() has unexpected key %q with value %q", gotKey, got[gotKey])
+				}
+			}
+		})
+	}
+}
+
+func TestError_ValidationMap_Immutable(t *testing.T) {
+	err := &errors.Error{
+		Category: errors.CategoryValidation,
+		Message:  "validation failed",
+		ValidationErrors: errors.ValidationErrors{
+			{Field: "email", Message: "invalid format"},
+			{Field: "name", Message: "required"},
+		},
+	}
+
+	validationMap1 := err.ValidationMap()
+
+	validationMap1["new_field"] = "new_message"
+	delete(validationMap1, "email")
+
+	validationMap2 := err.ValidationMap()
+
+	expected := map[string]string{
+		"email": "invalid format",
+		"name":  "required",
+	}
+
+	if len(validationMap2) != len(expected) {
+		t.Errorf("Second ValidationMap() call returned map with %d entries, want %d", len(validationMap2), len(expected))
+	}
+
+	for expectedKey, expectedValue := range expected {
+		if gotValue, exists := validationMap2[expectedKey]; !exists {
+			t.Errorf("Second ValidationMap() call missing key %q", expectedKey)
+		} else if gotValue != expectedValue {
+			t.Errorf("Second ValidationMap() call [%q] = %q, want %q", expectedKey, gotValue, expectedValue)
+		}
+	}
+
+	if _, exists := validationMap2["new_field"]; exists {
+		t.Error("Second ValidationMap() call should not contain 'new_field' added to first map")
+	}
+}
+
+func BenchmarkError_ValidationMap(b *testing.B) {
+	err := &errors.Error{
+		Category: errors.CategoryValidation,
+		Message:  "validation failed",
+		ValidationErrors: errors.ValidationErrors{
+			{Field: "email", Message: "invalid format"},
+			{Field: "name", Message: "required"},
+			{Field: "age", Message: "must be positive"},
+			{Field: "phone", Message: "invalid format"},
+			{Field: "address", Message: "too long"},
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = err.ValidationMap()
 	}
 }
