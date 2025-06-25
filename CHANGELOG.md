@@ -1,5 +1,20 @@
 # Changelog
 
+# [0.6.0](https://github.com/goliatone/go-errors/compare/v0.5.2...v0.6.0) - (2025-06-25)
+
+## <!-- 1 -->🐛 Bug Fixes
+
+- Typo ([ece9372](https://github.com/goliatone/go-errors/commit/ece9372a9ea5519ce10cb58b1edef4b33b10a84c))  - (goliatone)
+- Typo ([aede447](https://github.com/goliatone/go-errors/commit/aede447f12722cca94f55b4cb79a1f7508ec1c78))  - (goliatone)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.6.0 ([e5ced27](https://github.com/goliatone/go-errors/commit/e5ced272261d63439ed1aa3cd9ec24d876888efe))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.5.2 ([8882e7f](https://github.com/goliatone/go-errors/commit/8882e7f11fbb5c80c75a4921c65ab66d467dee2e))  - (goliatone)
+
 # [0.5.2](https://github.com/goliatone/go-errors/compare/v0.5.1...v0.5.2) - (2025-06-24)
 
 ## <!-- 1 -->🐛 Bug Fixes
