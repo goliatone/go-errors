@@ -1,5 +1,20 @@
 # Changelog
 
+# [0.7.0](https://github.com/goliatone/go-errors/compare/v0.6.0...v0.7.0) - (2025-06-26)
+
+## <!-- 1 -->🐛 Bug Fixes
+
+- Check using As ([d65ea6c](https://github.com/goliatone/go-errors/commit/d65ea6c1fdcc0d8ab07285cb7bcd7ccbcbe385a4))  - (goliatone)
+- Validation map should build from wrapped errors ([7416fe6](https://github.com/goliatone/go-errors/commit/7416fe6d8c27d8567236867a55e2af82b65bc34e))  - (goliatone)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.7.0 ([7f3d5ee](https://github.com/goliatone/go-errors/commit/7f3d5eebc33e42dacf7302b19f43525beeab7514))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.6.0 ([bf5fb74](https://github.com/goliatone/go-errors/commit/bf5fb740104af79fdd87cf429f25c719723199d5))  - (goliatone)
+
 # [0.6.0](https://github.com/goliatone/go-errors/compare/v0.5.2...v0.6.0) - (2025-06-25)
 
 ## <!-- 1 -->🐛 Bug Fixes
