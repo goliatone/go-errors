@@ -7,6 +7,8 @@ import (
 	"maps"
 	"strings"
 	"time"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 // Global behavior
@@ -110,6 +112,15 @@ func (e *Error) ValidationMap() map[string]string {
 	result := make(map[string]string)
 	for _, fieldErr := range e.ValidationErrors {
 		result[fieldErr.Field] = fieldErr.Message
+	}
+
+	//NOTE: this is a case for ozzo errors, not ieal but...
+	if len(result) == 0 && e.Source != nil {
+		if validationErrors, ok := e.Source.(validation.Errors); ok {
+			for field, fieldErr := range validationErrors {
+				result[field] = strings.TrimSpace(fieldErr.Error())
+			}
+		}
 	}
 	return result
 }
