@@ -13,7 +13,8 @@ func FromOzzoValidation(err error, message string) *Error {
 		return nil
 	}
 
-	if validationErrors, ok := err.(validation.Errors); ok {
+	var validationErrors validation.Errors
+	if As(err, &validationErrors) {
 		return fromOzzoValidationErrors(validationErrors, message)
 	}
 
