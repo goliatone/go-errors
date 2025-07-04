@@ -1,5 +1,19 @@
 # Changelog
 
+# [0.7.1](https://github.com/goliatone/go-errors/compare/v0.7.0...v0.7.1) - (2025-07-04)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.7.1 ([4664345](https://github.com/goliatone/go-errors/commit/4664345a74dd68e6180ed21f67df08b4aa102bea))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- New status codes ([c967a79](https://github.com/goliatone/go-errors/commit/c967a795856a45a6ba75297ccc86b9b75dba3b4f))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.7.0 ([5a66e9f](https://github.com/goliatone/go-errors/commit/5a66e9f4a345d8f52161a446fe8b74ef6ac91eb8))  - (goliatone)
+
 # [0.7.0](https://github.com/goliatone/go-errors/compare/v0.6.0...v0.7.0) - (2025-06-26)
 
 ## <!-- 1 -->🐛 Bug Fixes
