@@ -27,6 +27,18 @@ const (
 	CategoryCommand          Category = "command"
 )
 
+// TODO: Should this be how IsCategory actually functions?!
+func HasCategory(err error, category Category) bool {
+	if IsCategory(err, category) {
+		return true
+	}
+
+	if unwrapped := Unwrap(err); unwrapped != nil {
+		return HasCategory(unwrapped, category)
+	}
+	return false
+}
+
 func IsCategory(err error, category Category) bool {
 	if err == nil {
 		return false
