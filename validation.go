@@ -76,9 +76,16 @@ func NewValidationFromGroups(message string, groups map[string][]string) *Error 
 }
 
 func GetValidationErrors(err error) (ValidationErrors, bool) {
-	var e *Error
-	if As(err, &e) && e.Category == CategoryValidation {
-		return e.ValidationErrors, true
+	var allErrors ValidationErrors
+	found := false
+	currentErr := err
+	for currentErr != nil {
+		var e *Error
+		if As(currentErr, &e) && len(e.ValidationErrors) > 0 {
+			allErrors = append(allErrors, e.ValidationErrors...)
+			found = true
+		}
+		currentErr = Unwrap(currentErr)
 	}
-	return nil, false
+	return allErrors, found
 }

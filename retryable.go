@@ -82,6 +82,10 @@ func NewRetryable(message string, category Category) *RetryableError {
 }
 
 func WrapRetryable(source error, category Category, message string) *RetryableError {
+	if source == nil {
+		return nil
+	}
+
 	return &RetryableError{
 		BaseError: Wrap(source, category, message),
 		retryable: true,
