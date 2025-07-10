@@ -1,5 +1,28 @@
 # Changelog
 
+# [0.8.0](https://github.com/goliatone/go-errors/compare/v0.7.1...v0.8.0) - (2025-07-10)
+
+## <!-- 1 -->🐛 Bug Fixes
+
+- Nest validation maps ([670f6d3](https://github.com/goliatone/go-errors/commit/670f6d35f37558367d8a81699c5e875b8fbccb19))  - (goliatone)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.8.0 ([fb6874c](https://github.com/goliatone/go-errors/commit/fb6874c45a24b09c7c46ba85bd3a0a40b4d1cf21))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- Rich error logger handler ([3280ef0](https://github.com/goliatone/go-errors/commit/3280ef06deb5962771752c9cff6c99d9ee7add60))  - (goliatone)
+- HasCategory to check on all wrapped errors categories ([977a7cb](https://github.com/goliatone/go-errors/commit/977a7cbe73e41b4830bc0ab46f85396f3ef94c6f))  - (goliatone)
+
+## <!-- 22 -->🚧 WIP
+
+- Refactor errors and how we build them ([5853d15](https://github.com/goliatone/go-errors/commit/5853d158e38fabc0934cb41de863f82b8852018f))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.7.1 ([8a5603a](https://github.com/goliatone/go-errors/commit/8a5603a1d4f4af510df19eb63e96f3af8c1c9ca7))  - (goliatone)
+
 # [0.7.1](https://github.com/goliatone/go-errors/compare/v0.7.0...v0.7.1) - (2025-07-04)
 
 ## <!-- 13 -->📦 Bumps
