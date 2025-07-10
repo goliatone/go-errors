@@ -109,19 +109,70 @@ func (e *Error) WithTextCode(code string) *Error {
 // ValidationMap returns validation errors as a map
 // for easy template usage
 func (e *Error) ValidationMap() map[string]string {
-	result := make(map[string]string)
-	for _, fieldErr := range e.ValidationErrors {
-		result[fieldErr.Field] = fieldErr.Message
-	}
+	return e.allValidationMapWithPath("")
+}
 
-	//NOTE: this is a case for ozzo errors, not ieal but...
-	if len(result) == 0 && e.Source != nil {
+func (e *Error) AllValidationErrors() ValidationErrors {
+	var allErrors ValidationErrors
+	allErrors = append(allErrors, e.ValidationErrors...)
+	if len(e.ValidationErrors) == 0 && e.Source != nil {
 		if validationErrors, ok := e.Source.(validation.Errors); ok {
 			for field, fieldErr := range validationErrors {
-				result[field] = strings.TrimSpace(fieldErr.Error())
+				allErrors = append(allErrors, FieldError{
+					Field:   field,
+					Message: strings.TrimSpace(fieldErr.Error()),
+				})
 			}
 		}
 	}
+
+	if e.Source != nil {
+		if soureErr, ok := e.Source.(*Error); ok {
+			allErrors = append(allErrors, soureErr.AllValidationErrors()...)
+		}
+	}
+
+	return allErrors
+}
+
+func (e *Error) allValidationMapWithPath(prefix string) map[string]string {
+	result := make(map[string]string)
+
+	for _, fieldErr := range e.ValidationErrors {
+		key := fieldErr.Field
+		if prefix != "" {
+			key = prefix + "." + fieldErr.Field
+		}
+		result[key] = fieldErr.Message
+	}
+
+	if len(e.ValidationErrors) == 0 && e.Source != nil {
+		if validationErrors, ok := e.Source.(validation.Errors); ok {
+			for field, fieldErr := range validationErrors {
+				key := field
+				if prefix != "" {
+					key = prefix + "." + field
+				}
+				result[key] = strings.TrimSpace(fieldErr.Error())
+			}
+		}
+	}
+
+	if e.Source != nil {
+		if sourceErr, ok := e.Source.(*Error); ok {
+			newPrefix := prefix
+			if newPrefix == "" {
+				newPrefix = "source"
+			} else {
+				newPrefix = prefix + ".source"
+			}
+
+			for k, v := range sourceErr.allValidationMapWithPath(newPrefix) {
+				result[k] = v
+			}
+		}
+	}
+
 	return result
 }
 
@@ -158,6 +209,26 @@ func (e *Error) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
+func (e *Error) Clone() *Error {
+	if e == nil {
+		return nil
+	}
+
+	clone := *e // shallow copy
+
+	if e.ValidationErrors != nil {
+		clone.ValidationErrors = make(ValidationErrors, len(e.ValidationErrors))
+		copy(clone.ValidationErrors, e.ValidationErrors)
+	}
+
+	if e.Metadata != nil {
+		clone.Metadata = make(map[string]any, len(e.Metadata))
+		maps.Copy(clone.Metadata, e.Metadata)
+	}
+
+	return &clone
+}
+
 // New creates a new Error with the specified category and message
 func New(message string, category ...Category) *Error {
 	cat := CategoryInternal
@@ -173,6 +244,17 @@ func New(message string, category ...Category) *Error {
 
 // Wrap creates a new Error that wraps an existing error
 func Wrap(source error, category Category, message string) *Error {
+	if source == nil {
+		return nil
+	}
+
+	var e *Error
+	if As(source, &e) {
+		nerr := e.Clone()
+		nerr.Message = fmt.Sprintf("%s: %s", message, e.Message)
+		return nerr
+	}
+
 	return &Error{
 		Category:  category,
 		Message:   message,
@@ -191,4 +273,21 @@ func IsWrapped(err error) bool {
 	var retryableErr *RetryableError
 
 	return As(err, &customErr) || As(err, &retryableErr)
+}
+
+func RootCause(err error) error {
+	for {
+		unwrapped := Unwrap(err)
+		if unwrapped == nil {
+			return err
+		}
+		err = unwrapped
+	}
+}
+
+func RootCategory(err error) Category {
+	if rootErr, ok := RootCause(err).(*Error); ok {
+		return rootErr.Category
+	}
+	return CategoryInternal
 }
