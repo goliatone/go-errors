@@ -32,10 +32,10 @@ import (
 )
 
 func main() {
-    // a simple error
-    err := errors.New(errors.CategoryNotFound, "user not found")
+    // Create a simple error - note the parameter order change
+    err := errors.New("user not found", errors.CategoryNotFound)
 
-    // Add context
+    // Add context using fluent interface
     enrichedErr := err.
         WithMetadata(map[string]any{"user_id": 123}).
         WithRequestID("req-456").
@@ -45,24 +45,25 @@ func main() {
 
     fmt.Println(enrichedErr.Error())
 
-    // create a validation error
+    // Create a validation error
     validationErr := errors.NewValidation("invalid input",
         errors.FieldError{Field: "email", Message: "required"},
         errors.FieldError{Field: "age", Message: "must be positive"},
     )
 
-    // wrapping an existing error
+    // Wrap an existing error
     wrappedErr := errors.Wrap(err, errors.CategoryInternal, "database query failed")
 }
 ```
 
 ## Error Categories
 
-The package provides a set of pre defined error categories:
+The package provides a set of predefined error categories:
 
 - `CategoryValidation` - Input validation failures
 - `CategoryAuth` - Authentication errors
 - `CategoryAuthz` - Authorization errors
+- `CategoryOperation` - Operation failures
 - `CategoryNotFound` - Resource not found
 - `CategoryConflict` - Resource conflicts
 - `CategoryRateLimit` - Rate limiting errors
@@ -73,6 +74,7 @@ The package provides a set of pre defined error categories:
 - `CategoryRouting` - Routing errors
 - `CategoryHandler` - Handler errors
 - `CategoryMethodNotAllowed` - HTTP method not allowed
+- `CategoryCommand` - Command execution errors
 
 ## Core Types
 
@@ -114,8 +116,10 @@ type FieldError struct {
 ### Basic Constructors
 
 ```go
-err := errors.New(errors.CategoryNotFound, "resource not found")
+// New creates an error with message and optional category (defaults to CategoryInternal)
+err := errors.New("resource not found", errors.CategoryNotFound)
 
+// Wrap an existing error with additional context
 wrappedErr := errors.Wrap(sourceErr, errors.CategoryInternal, "operation failed")
 ```
 
@@ -147,7 +151,7 @@ err := errors.NewValidationFromGroups("validation failed", groups)
 Chain methods to build rich error context:
 
 ```go
-err := errors.New(errors.CategoryAuth, "authentication failed").
+err := errors.New("authentication failed", errors.CategoryAuth).
     WithCode(401).
     WithTextCode("AUTH_FAILED").
     WithMetadata(map[string]any{
@@ -160,17 +164,38 @@ err := errors.New(errors.CategoryAuth, "authentication failed").
 
 ## Error Checking
 
-The package provides utility functions to check an error's category:
+The package provides utility functions to check error types and categories:
 
 ```go
-// Check error category
+// Check specific error categories
 if errors.IsValidation(err) {
     // Handle validation error
 }
 
-// Check specific category
-if errors.IsCategory(err, errors.CategoryNotFound) {
-    // Handle not found
+if errors.IsAuth(err) {
+    // Handle authentication error
+}
+
+if errors.IsNotFound(err) {
+    // Handle not found error
+}
+
+if errors.IsInternal(err) {
+    // Handle internal error
+}
+
+if errors.IsCommand(err) {
+    // Handle command error
+}
+
+// Check any category
+if errors.IsCategory(err, errors.CategoryRateLimit) {
+    // Handle rate limit error
+}
+
+// Check if category exists anywhere in error chain
+if errors.HasCategory(err, errors.CategoryExternal) {
+    // Handle external service error (even if wrapped)
 }
 
 // Extract validation errors
@@ -190,20 +215,31 @@ if errors.As(err, &myErr) {
     // Access structured error fields
     fmt.Println(myErr.Category)
 }
+
+// Get root cause of error chain
+rootErr := errors.RootCause(err)
+
+// Get root category from error chain
+rootCategory := errors.RootCategory(err)
 ```
 
 ## JSON Serialization
 
-Errors are fully JSON serializable:
+Errors implement JSON marshaling for API responses:
 
 ```go
-err := errors.New(errors.CategoryValidation, "validation failed").
+err := errors.New("validation failed", errors.CategoryValidation).
     WithCode(400).
     WithMetadata(map[string]any{"field": "email"})
 
 data, _ := json.Marshal(err)
 fmt.Println(string(data))
 // Output: {"category":"validation","code":400,"message":"validation failed","metadata":{"field":"email"},"timestamp":"2023-01-01T12:00:00Z"}
+
+// Create an error response for APIs
+errResp := err.ToErrorResponse(false, nil) // excludes stack trace
+responseData, _ := json.Marshal(errResp)
+// Output: {"error":{"category":"validation","code":400,"message":"validation failed","metadata":{"field":"email"},"timestamp":"2023-01-01T12:00:00Z"}}
 ```
 
 ## Stack Traces
