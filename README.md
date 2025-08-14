@@ -1,17 +1,19 @@
 # Go Errors
 
-A simple error handling package that provides structured errors with rich context, validation support, and JSON serialization.
+A comprehensive error handling package that provides structured errors with rich context, validation support, retryable errors, and JSON serialization.
 
 ## Features
 
 - **Structured Error Types**: Categorized errors with consistent structure across packages
 - **Rich Context**: Metadata, stack traces, request IDs, and timestamps
-- **Validation Support**: Built-in handling for field-level validation errors
+- **Validation Support**: Built-in handling for field-level validation errors with ozzo-validation integration
+- **Retryable Errors**: Support for retryable errors with exponential backoff
 - **JSON Serialization**: Full JSON marshaling/unmarshaling support
 - **Error Wrapping**: Compatible with Go's `errors.Is` and `errors.As`
 - **Fluent Interface**: Chainable methods for building complex errors
 - **Code Support**: Both numeric and text codes for easy error identification
-- **Domain Agnostic**: Core package has no HTTP or domain-specific dependencies
+- **HTTP Integration**: Built-in HTTP status code mapping and error response structures
+- **Logging Support**: slog integration for structured logging attributes
 
 ## Installation
 
