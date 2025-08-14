@@ -247,10 +247,103 @@ responseData, _ := json.Marshal(errResp)
 Capture stack traces for debugging:
 
 ```go
-err := errors.New(errors.CategoryInternal, "system error").WithStackTrace()
+err := errors.New("system error", errors.CategoryInternal).WithStackTrace()
 
 // Print error with stack trace
 fmt.Println(err.ErrorWithStack())
+```
+
+## Retryable Errors
+
+The package provides support for retryable errors with exponential backoff:
+
+```go
+// Create a retryable error
+retryErr := errors.NewRetryable("service unavailable", errors.CategoryExternal).
+    WithRetryDelay(2 * time.Second).
+    WithCode(503)
+
+// Create a retryable operation error with default 500ms delay
+opErr := errors.NewRetryableOperation("operation failed")
+
+// Create a retryable external service error
+extErr := errors.NewRetryableExternal("external API error")
+
+// Create a non-retryable error
+nonRetryErr := errors.NewNonRetryable("invalid credentials", errors.CategoryAuth)
+
+// Check if error is retryable
+if errors.IsRetryableError(err) {
+    // Calculate delay for attempt 3
+    if retryableErr, ok := err.(*errors.RetryableError); ok {
+        delay := retryableErr.RetryDelay(3) // exponential backoff
+    }
+}
+```
+
+## HTTP Integration
+
+The package includes HTTP error mapping and response utilities:
+
+```go
+// Map HTTP errors to structured errors
+httpErr := errors.MapHTTPErrors(err)
+
+// Convert category to HTTP status code
+status := errors.HTTPStatusToCategory(404) // returns CategoryNotFound
+
+// Generate text code from HTTP status
+textCode := errors.HTTPStatusToTextCode(404) // returns "NOT_FOUND"
+
+// Use predefined HTTP status constants
+err := errors.New("not found", errors.CategoryNotFound).
+    WithCode(errors.CodeNotFound) // 404
+
+// Map errors with custom mappers
+mappedErr := errors.MapToError(err, errors.DefaultErrorMappers())
+```
+
+## Logging Integration
+
+Integrate with structured logging using slog:
+
+```go
+import "log/slog"
+
+// Convert error to slog attributes
+attrs := errors.ToSlogAttributes(err)
+slog.Error("operation failed", attrs...)
+
+// Attributes include: error_code, text_code, category, request_id, 
+// validation_errors, and metadata
+```
+
+## Validation Methods
+
+The Error type provides additional validation helper methods:
+
+```go
+// Get all validation errors as a map (including nested)
+validationMap := err.ValidationMap()
+// Returns: map[string]string{"email": "required", "age": "must be positive"}
+
+// Get all validation errors including wrapped errors
+allErrors := err.AllValidationErrors()
+// Returns: []FieldError with all validation errors in the chain
+
+// Clone an error for modification
+clonedErr := err.Clone()
+clonedErr.WithMetadata(map[string]any{"new_field": "value"})
+```
+
+## Global Configuration
+
+```go
+// Enable verbose error output
+errors.Verbose = true
+
+// Set development mode for detailed debugging
+errors.IsDevelopment = true
 ```
 
 ## License
