@@ -1,5 +1,37 @@
 # Changelog
 
+# [0.9.0](https://github.com/goliatone/go-errors/compare/v0.8.0...v0.9.0) - (2025-08-16)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.9.0 ([3a1c59e](https://github.com/goliatone/go-errors/commit/3a1c59ea2f0d44fb4961e4d7ef4551a83fe30a2c))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- Use severity in retryable ([66d1dd6](https://github.com/goliatone/go-errors/commit/66d1dd66c03cd33d186848b29d4cf7c01cb0e7a7))  - (goliatone)
+- Severity ([a031aad](https://github.com/goliatone/go-errors/commit/a031aad036577fc75cc5011ca96c4b51b8d3a86d))  - (goliatone)
+- Severity ([7bc01f0](https://github.com/goliatone/go-errors/commit/7bc01f020b6fb99d39a73d5a9cabbf43744cc69b))  - (goliatone)
+- Config ([156ed58](https://github.com/goliatone/go-errors/commit/156ed58feaaa51ff1abf1489855cf0e6f0a4ba05))  - (goliatone)
+- Config ([93cf67b](https://github.com/goliatone/go-errors/commit/93cf67b2d03308702606178fa34119b05acb95ea))  - (goliatone)
+- Collector implementation ([afa86c0](https://github.com/goliatone/go-errors/commit/afa86c0fb6732866bf80e690a6890beaa94be80b))  - (goliatone)
+- Tests ([6af7be9](https://github.com/goliatone/go-errors/commit/6af7be9ba6660d05ac76320d38ce39cce793528b))  - (goliatone)
+- Tests ([4bc4fa8](https://github.com/goliatone/go-errors/commit/4bc4fa8e6fb32cef7851285aeb7501973bc4dd1e))  - (goliatone)
+- Location implementation ([fc4bf6b](https://github.com/goliatone/go-errors/commit/fc4bf6bf13ef073a622d2942d4d003db1a710a54))  - (goliatone)
+- Location implementation ([03dc96a](https://github.com/goliatone/go-errors/commit/03dc96ae2131e8c3b9d640376b1a574c853b9a7c))  - (goliatone)
+- Location implementation ([98920be](https://github.com/goliatone/go-errors/commit/98920be8d458dcb29a6e18a8c0e00a9d98e2e88d))  - (goliatone)
+- Location implementation ([4454651](https://github.com/goliatone/go-errors/commit/4454651bfda98788a811e6ff86b4c2060f713a71))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.8.0 ([6356967](https://github.com/goliatone/go-errors/commit/6356967b86f0013af4c9d1895cfc2b510fb5275c))  - (goliatone)
+
+## <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- Update readme ([76de154](https://github.com/goliatone/go-errors/commit/76de154b595c4a23540d450739d14b93ecd43f11))  - (goliatone)
+- Update readme ([233b57f](https://github.com/goliatone/go-errors/commit/233b57f8d3cbf3b3a45200f764b7831a16f21036))  - (goliatone)
+- Update readme ([701bc4f](https://github.com/goliatone/go-errors/commit/701bc4f3aa2724d0be47c036fcf3d9a22363452b))  - (goliatone)
+- Update readme ([ec6bebc](https://github.com/goliatone/go-errors/commit/ec6bebcca8d56ed206c1086593746d5a0c084297))  - (goliatone)
+
 # [0.8.0](https://github.com/goliatone/go-errors/compare/v0.7.1...v0.8.0) - (2025-07-10)
 
 ## <!-- 1 -->🐛 Bug Fixes
