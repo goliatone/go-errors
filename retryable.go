@@ -73,6 +73,12 @@ func (r *RetryableError) WithTextCode(code string) *RetryableError {
 	return r
 }
 
+// WithLocation sets the location where the error occurred
+func (r *RetryableError) WithLocation(loc *ErrorLocation) *RetryableError {
+	r.BaseError.WithLocation(loc)
+	return r
+}
+
 func NewRetryable(message string, category Category) *RetryableError {
 	return &RetryableError{
 		BaseError: New(message, category),
