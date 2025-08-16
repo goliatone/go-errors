@@ -19,7 +19,14 @@ func (r *RetryableError) Error() string {
 }
 
 // IsRetryable returns whether this error should trigger a retry
+// Critical and Fatal errors are never retryable regardless of the retryable flag
 func (r *RetryableError) IsRetryable() bool {
+	if r.BaseError != nil {
+		severity := r.BaseError.GetSeverity()
+		if severity >= SeverityCritical {
+			return false // Critical and Fatal errors should not be retried
+		}
+	}
 	return r.retryable
 }
 
@@ -76,6 +83,12 @@ func (r *RetryableError) WithTextCode(code string) *RetryableError {
 // WithLocation sets the location where the error occurred
 func (r *RetryableError) WithLocation(loc *ErrorLocation) *RetryableError {
 	r.BaseError.WithLocation(loc)
+	return r
+}
+
+// WithSeverity sets the severity level of the retryable error
+func (r *RetryableError) WithSeverity(s Severity) *RetryableError {
+	r.BaseError.WithSeverity(s)
 	return r
 }
 
