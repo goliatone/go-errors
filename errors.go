@@ -36,6 +36,7 @@ type Error struct {
 	Timestamp        time.Time        `json:"timestamp"`
 	StackTrace       StackTrace       `json:"stack_trace,omitempty"`
 	Location         *ErrorLocation   `json:"location,omitempty"`
+	Severity         Severity         `json:"severity"`
 }
 
 func (e *Error) Error() string {
@@ -127,6 +128,27 @@ func (e *Error) HasLocation() bool {
 	return e.Location != nil
 }
 
+// WithSeverity sets the severity level of the error
+func (e *Error) WithSeverity(s Severity) *Error {
+	e.Severity = s
+	return e
+}
+
+// GetSeverity returns the severity level of the error
+func (e *Error) GetSeverity() Severity {
+	return e.Severity
+}
+
+// HasSeverity returns true if the error has the specified severity level
+func (e *Error) HasSeverity(s Severity) bool {
+	return e.Severity == s
+}
+
+// IsAboveSeverity returns true if the error's severity is above the threshold
+func (e *Error) IsAboveSeverity(threshold Severity) bool {
+	return e.Severity >= threshold
+}
+
 // ValidationMap returns validation errors as a map
 // for easy template usage
 func (e *Error) ValidationMap() map[string]string {
@@ -210,6 +232,7 @@ func (e *Error) MarshalJSON() ([]byte, error) {
 		Timestamp        string           `json:"timestamp"`
 		StackTrace       StackTrace       `json:"stack_trace,omitempty"`
 		Location         *ErrorLocation   `json:"location,omitempty"`
+		Severity         Severity         `json:"severity"`
 	}
 
 	aux := alias{
@@ -223,6 +246,7 @@ func (e *Error) MarshalJSON() ([]byte, error) {
 		Timestamp:        e.Timestamp.Format(time.RFC3339),
 		StackTrace:       e.StackTrace,
 		Location:         e.Location,
+		Severity:         e.Severity,
 	}
 
 	if e.Source != nil {
@@ -263,6 +287,7 @@ func New(message string, category ...Category) *Error {
 		Message:   message,
 		Timestamp: time.Now(),
 		Location:  captureLocation(1), // Capture caller's location
+		Severity:  SeverityError,      // Default severity
 	}
 }
 
@@ -286,6 +311,7 @@ func Wrap(source error, category Category, message string) *Error {
 		Source:    source,
 		Timestamp: time.Now(),
 		Location:  captureLocation(1), // Capture new location for non-Error sources
+		Severity:  SeverityError,      // Default severity
 	}
 }
 
@@ -296,7 +322,28 @@ func NewWithLocation(message string, category Category, location *ErrorLocation)
 		Message:   message,
 		Timestamp: time.Now(),
 		Location:  location,
+		Severity:  SeverityError, // Default severity
 	}
+}
+
+// NewCritical creates a new Error with Critical severity
+func NewCritical(message string, category Category) *Error {
+	return New(message, category).WithSeverity(SeverityCritical)
+}
+
+// NewWarning creates a new Error with Warning severity
+func NewWarning(message string, category Category) *Error {
+	return New(message, category).WithSeverity(SeverityWarning)
+}
+
+// NewInfo creates a new Error with Info severity
+func NewInfo(message string, category Category) *Error {
+	return New(message, category).WithSeverity(SeverityInfo)
+}
+
+// NewDebug creates a new Error with Debug severity
+func NewDebug(message string, category Category) *Error {
+	return New(message, category).WithSeverity(SeverityDebug)
 }
 
 // IsWrapped checks if an error is already wrapped by our custom error types
