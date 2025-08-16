@@ -35,6 +35,7 @@ type Error struct {
 	RequestID        string           `json:"request_id,omitempty"`
 	Timestamp        time.Time        `json:"timestamp"`
 	StackTrace       StackTrace       `json:"stack_trace,omitempty"`
+	Location         *ErrorLocation   `json:"location,omitempty"`
 }
 
 func (e *Error) Error() string {
@@ -56,6 +57,10 @@ func (e *Error) Error() string {
 
 	if len(e.Metadata) > 0 {
 		parts = append(parts, fmt.Sprintf("metadata: %d items", len(e.Metadata)))
+	}
+
+	if Verbose && e.Location != nil {
+		parts = append(parts, fmt.Sprintf("location: %s", e.Location.String()))
 	}
 
 	return strings.Join(parts, "; ")
@@ -104,6 +109,22 @@ func (e *Error) WithCode(code int) *Error {
 func (e *Error) WithTextCode(code string) *Error {
 	e.TextCode = code
 	return e
+}
+
+// WithLocation sets the location where the error occurred
+func (e *Error) WithLocation(loc *ErrorLocation) *Error {
+	e.Location = loc
+	return e
+}
+
+// GetLocation returns the location where the error occurred
+func (e *Error) GetLocation() *ErrorLocation {
+	return e.Location
+}
+
+// HasLocation returns true if the error has location information
+func (e *Error) HasLocation() bool {
+	return e.Location != nil
 }
 
 // ValidationMap returns validation errors as a map
@@ -188,6 +209,7 @@ func (e *Error) MarshalJSON() ([]byte, error) {
 		RequestID        string           `json:"request_id,omitempty"`
 		Timestamp        string           `json:"timestamp"`
 		StackTrace       StackTrace       `json:"stack_trace,omitempty"`
+		Location         *ErrorLocation   `json:"location,omitempty"`
 	}
 
 	aux := alias{
@@ -200,6 +222,7 @@ func (e *Error) MarshalJSON() ([]byte, error) {
 		RequestID:        e.RequestID,
 		Timestamp:        e.Timestamp.Format(time.RFC3339),
 		StackTrace:       e.StackTrace,
+		Location:         e.Location,
 	}
 
 	if e.Source != nil {
@@ -239,6 +262,7 @@ func New(message string, category ...Category) *Error {
 		Category:  cat,
 		Message:   message,
 		Timestamp: time.Now(),
+		Location:  captureLocation(1), // Capture caller's location
 	}
 }
 
@@ -252,6 +276,7 @@ func Wrap(source error, category Category, message string) *Error {
 	if As(source, &e) {
 		nerr := e.Clone()
 		nerr.Message = fmt.Sprintf("%s: %s", message, e.Message)
+		// Keep original location when wrapping existing Error
 		return nerr
 	}
 
@@ -260,6 +285,17 @@ func Wrap(source error, category Category, message string) *Error {
 		Message:   message,
 		Source:    source,
 		Timestamp: time.Now(),
+		Location:  captureLocation(1), // Capture new location for non-Error sources
+	}
+}
+
+// NewWithLocation creates a new Error with explicit location setting
+func NewWithLocation(message string, category Category, location *ErrorLocation) *Error {
+	return &Error{
+		Category:  category,
+		Message:   message,
+		Timestamp: time.Now(),
+		Location:  location,
 	}
 }
 
