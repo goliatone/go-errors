@@ -260,6 +260,80 @@ function version:check {
 }
 
 
+function deps:update {
+    local pattern="."          # default: match all
+    local level="patch"        # default: patch
+    local dry_run="false"      # default: false
+
+    # --- parse args ---
+    for arg in "$@"; do
+        case $arg in
+            --pattern=*) pattern="${arg#*=}" ;;
+            --level=*)   level="${arg#*=}" ;;
+            --dry-run)   dry_run="true" ;;
+            --help)
+                cat <<EOF
+Usage: deps:update [--pattern=REGEX] [--level=patch|minor|major] [--dry-run]
+
+Options:
+  --pattern=REGEX   Regex to match module path (default: all)
+  --level=LEVEL     patch|minor|major (default: patch)
+  --dry-run         Show what would be updated, but do not change anything
+  --help            Show this message
+EOF
+                return 0
+                ;;
+            *) lgr warn "Unknown option: $arg" ;;
+        esac
+    done
+
+    lgr info "🔍 Finding dependencies matching '$pattern'..."
+    local matches
+    matches=$(go list -m all | grep "$pattern")
+
+    if [ -z "$matches" ]; then
+        lgr warn "No dependencies found matching '$pattern'"
+        return 0
+    fi
+
+    lgr info "📦 Updating dependencies (level=$level, dry-run=$dry_run)..."
+
+    while read -r dep; do
+        local module
+        module=$(echo "$dep" | awk '{print $1}')
+
+        if [ "$dry_run" = "true" ]; then
+            lgr info "Would update $module ($level)"
+        else
+            case "$level" in
+                patch) lgr info "➡️  Updating $module (patch)" && go get -u=patch "$module" ;;
+                minor) lgr info "➡️  Updating $module (minor)" && go get -u=minor "$module" ;;
+                major) lgr info "➡️  Updating $module (major)" && go get -u "$module" ;;
+                *) lgr error "Unknown level: $level" && return 1 ;;
+            esac
+        fi
+    done <<< "$matches"
+
+    if [ "$dry_run" = "false" ]; then
+        lgr info "🧹 Running go mod tidy..."
+        go mod tidy
+
+        if type dev:test &>/dev/null; then
+            lgr info "🧪 Running tests (dev:test)..."
+            if ! dev:test; then
+                lgr error "❌ Tests failed after updating dependencies."
+                return 1
+            fi
+        else
+            lgr warn "dev:test function not found, skipping tests."
+        fi
+
+        lgr info "✅ Dependencies updated successfully."
+    else
+        lgr info "Dry run complete. No changes made."
+    fi
+}
+
 ##
 ## -----
 ##
