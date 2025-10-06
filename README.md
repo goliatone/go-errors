@@ -98,7 +98,7 @@ err = errors.New("critical error").WithLocation(errors.Here())
 // Check if error has location
 if err.HasLocation() {
     loc := err.GetLocation()
-    fmt.Printf("File: %s, Line: %d, Function: %s\n", 
+    fmt.Printf("File: %s, Line: %d, Function: %s\n",
         loc.File, loc.Line, loc.Function)
 }
 
@@ -116,7 +116,7 @@ Classify errors by severity with built-in level hierarchy:
 
 ```go
 // Severity levels (from lowest to highest)
-// SeverityDebug, SeverityInfo, SeverityWarning, 
+// SeverityDebug, SeverityInfo, SeverityWarning,
 // SeverityError, SeverityCritical, SeverityFatal
 
 // Create errors with specific severity
@@ -160,7 +160,7 @@ collector := errors.NewCollector(
 )
 
 // Add various types of errors
-collector.Add(errors.NewValidation("Email invalid", 
+collector.Add(errors.NewValidation("Email invalid",
     errors.FieldError{Field: "email", Message: "required"}))
 collector.AddValidation("age", "must be positive")
 collector.AddRetryable(nil, errors.CategoryExternal, "Service timeout")
@@ -203,30 +203,30 @@ collector.Reset()
 ```go
 func processBatch(items []Item) error {
     collector := errors.NewCollector(errors.WithMaxErrors(100))
-    
+
     for _, item := range items {
         if err := processItem(item); err != nil {
             collector.Add(err)
         }
     }
-    
+
     if !collector.HasErrors() {
         return nil // All items processed successfully
     }
-    
+
     // Analyze errors to determine strategy
     retryableCount := len(collector.GetRetryableErrors())
     criticalCount := len(collector.FilterBySeverity(errors.SeverityCritical))
-    
+
     if criticalCount > 0 {
         // Abort batch due to critical errors
         return collector.Merge()
     } else if retryableCount > collector.Count()/2 {
         // Retry entire batch if mostly retryable errors
-        return errors.NewRetryable("Batch has retryable errors", 
+        return errors.NewRetryable("Batch has retryable errors",
             errors.CategoryOperation).BaseError
     }
-    
+
     // Return aggregated error for individual item handling
     return collector.Merge()
 }
@@ -237,7 +237,7 @@ func processBatch(items []Item) error {
 ```go
 func registerUser(req UserRequest) (*UserResponse, error) {
     collector := errors.NewCollector()
-    
+
     // Validate input
     if req.Email == "" {
         collector.AddValidation("email", "email is required")
@@ -245,24 +245,24 @@ func registerUser(req UserRequest) (*UserResponse, error) {
     if req.Age < 18 {
         collector.AddValidation("age", "must be 18 or older")
     }
-    
+
     // Check business rules
     if isReservedUsername(req.Username) {
         collector.Add(errors.New("Username reserved", errors.CategoryConflict).
             WithCode(409).WithTextCode("USERNAME_RESERVED"))
     }
-    
+
     // External service checks
     if err := validateEmailWithService(req.Email); err != nil {
-        collector.AddRetryable(err, errors.CategoryExternal, 
+        collector.AddRetryable(err, errors.CategoryExternal,
             "Email validation service failed")
     }
-    
+
     if collector.HasErrors() {
         // Return HTTP-ready error response
         return nil, collector.Merge()
     }
-    
+
     // Proceed with user creation...
     return &UserResponse{}, nil
 }
@@ -326,7 +326,7 @@ type Severity int
 
 const (
     SeverityDebug Severity = iota    // Debug information
-    SeverityInfo                     // Informational messages  
+    SeverityInfo                     // Informational messages
     SeverityWarning                  // Warning conditions
     SeverityError                    // Error conditions (default)
     SeverityCritical                 // Critical conditions
@@ -348,7 +348,7 @@ type CollectorOption func(*ErrorCollector)
 
 // Option functions:
 // WithMaxErrors(max int) - Set maximum errors (default: 100)
-// WithStrictMode(strict bool) - Enable strict mode (default: false)  
+// WithStrictMode(strict bool) - Enable strict mode (default: false)
 // WithContext(ctx context.Context) - Set context
 ```
 
@@ -392,7 +392,7 @@ err := errors.NewValidationFromGroups("validation failed", groups)
 ```go
 // Create errors with specific severity levels
 debugErr := errors.NewDebug("Debug info", errors.CategoryInternal)
-infoErr := errors.NewInfo("User action", errors.CategoryAuth)  
+infoErr := errors.NewInfo("User action", errors.CategoryAuth)
 warningErr := errors.NewWarning("Resource low", errors.CategoryOperation)
 criticalErr := errors.NewCritical("System failing", errors.CategoryInternal)
 
@@ -420,8 +420,8 @@ collector := errors.NewCollector(
 // Automatic location capture (default behavior)
 err := errors.New("error message", errors.CategoryInternal)
 
-// Explicit location setting  
-err := errors.NewWithLocation("error message", 
+// Explicit location setting
+err := errors.NewWithLocation("error message",
     errors.CategoryInternal, errors.Here())
 
 // Disable location for this error only
@@ -448,7 +448,7 @@ err := errors.New("authentication failed", errors.CategoryAuth).
     WithStackTrace()
 
 // Additional fluent methods for enhanced features:
-err = err.WithSeverity(errors.SeverityWarning)      // Change severity
+err = err.WithSeverity(errors.SeverityWarning)       // Change severity
 if err.HasLocation() {                               // Check location
     fmt.Printf("Location: %s\n", err.GetLocation().String())
 }
