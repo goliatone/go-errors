@@ -50,6 +50,7 @@ func MapToError(err error, mappers []ErrorMapper) *Error {
 func DefaultErrorMappers() []ErrorMapper {
 	return []ErrorMapper{
 		MapHTTPErrors,
+		MapOnboardingErrors,
 		MapAuthErrors,
 	}
 }
@@ -71,20 +72,44 @@ func MapHTTPErrors(err error) *Error {
 }
 
 func MapAuthErrors(err error) *Error {
-	errMsg := err.Error()
+	msg := normalizeErrorMessage(err)
 	switch {
-	case strings.Contains(errMsg, "unauthorized") || strings.Contains(errMsg, "authentication"):
+	case containsAny(msg, "unauthorized", "authentication"):
 		return New(err.Error(), CategoryAuth).
 			WithCode(http.StatusUnauthorized).
 			WithTextCode("UNAUTHORIZED")
-	case strings.Contains(errMsg, "forbidden") || strings.Contains(errMsg, "authorization"):
+	case containsAny(msg, "forbidden", "authorization"):
 		return New(err.Error(), CategoryAuthz).
 			WithCode(http.StatusForbidden).
 			WithTextCode("FORBIDDEN")
-	case strings.Contains(errMsg, "token expired"):
+	case containsAny(msg, "too many attempts", "too many login attempts"):
+		return New(err.Error(), CategoryRateLimit).
+			WithCode(http.StatusTooManyRequests).
+			WithTextCode(TextCodeTooManyAttempts)
+	case containsAny(msg, "token expired", "token is expired"):
 		return New(err.Error(), CategoryAuth).
 			WithCode(http.StatusUnauthorized).
-			WithTextCode("TOKEN_EXPIRED")
+			WithTextCode(TextCodeTokenExpired)
+	case containsAny(msg, "token malformed", "token is malformed", "malformed token", "missing or malformed jwt"):
+		return New(err.Error(), CategoryAuth).
+			WithCode(http.StatusBadRequest).
+			WithTextCode(TextCodeTokenMalformed)
+	case containsAny(msg, "account is suspended", "account suspended", "user account is suspended"):
+		return New(err.Error(), CategoryAuth).
+			WithCode(http.StatusForbidden).
+			WithTextCode(TextCodeAccountSuspended)
+	case containsAny(msg, "account is disabled", "account disabled", "user account is disabled"):
+		return New(err.Error(), CategoryAuth).
+			WithCode(http.StatusForbidden).
+			WithTextCode(TextCodeAccountDisabled)
+	case containsAny(msg, "account is archived", "account archived", "user account is archived"):
+		return New(err.Error(), CategoryAuth).
+			WithCode(http.StatusForbidden).
+			WithTextCode(TextCodeAccountArchived)
+	case containsAny(msg, "account is pending", "account pending", "user account is pending"):
+		return New(err.Error(), CategoryAuth).
+			WithCode(http.StatusForbidden).
+			WithTextCode(TextCodeAccountPending)
 	}
 	return nil
 }
