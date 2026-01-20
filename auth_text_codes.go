@@ -1,0 +1,27 @@
+package errors
+
+const (
+	TextCodeInvalidCredentials   = "INVALID_CREDENTIALS"
+	TextCodeTooManyAttempts      = "TOO_MANY_ATTEMPTS"
+	TextCodeSessionNotFound      = "SESSION_NOT_FOUND"
+	TextCodeSessionDecodeError   = "SESSION_DECODE_ERROR"
+	TextCodeClaimsMappingError   = "CLAIMS_MAPPING_ERROR"
+	TextCodeDataParseError       = "DATA_PARSE_ERROR"
+	TextCodeEmptyPassword        = "EMPTY_PASSWORD_NOT_ALLOWED"
+	TextCodeTokenExpired         = "TOKEN_EXPIRED"
+	TextCodeTokenMalformed       = "TOKEN_MALFORMED"
+	TextCodeTokenAlreadyUsed     = "TOKEN_ALREADY_USED"
+	TextCodeImmutableClaim       = "IMMUTABLE_CLAIM_MUTATION"
+	TextCodeAccountSuspended     = "ACCOUNT_SUSPENDED"
+	TextCodeAccountDisabled      = "ACCOUNT_DISABLED"
+	TextCodeAccountArchived      = "ACCOUNT_ARCHIVED"
+	TextCodeAccountPending       = "ACCOUNT_PENDING"
+	TextCodeAccountLocked        = "ACCOUNT_LOCKED"
+	TextCodeResetRateLimit       = "RESET_RATE_LIMIT"
+	TextCodeResetNotAllowed      = "RESET_NOT_ALLOWED"
+	TextCodeVerificationRequired = "VERIFICATION_REQUIRED"
+	TextCodeVerificationExpired  = "VERIFICATION_EXPIRED"
+	TextCodeInviteExpired        = "INVITE_EXPIRED"
+	TextCodeInviteUsed           = "INVITE_USED"
+	TextCodeFeatureDisabled      = "FEATURE_DISABLED"
+)
