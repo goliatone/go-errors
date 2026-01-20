@@ -31,6 +31,13 @@ func TestMapAuthErrors_TextCodes(t *testing.T) {
 			wantCategory: errors.CategoryAuth,
 		},
 		{
+			name:         "authentication token expired",
+			message:      "authentication token expired",
+			wantTextCode: errors.TextCodeTokenExpired,
+			wantCode:     401,
+			wantCategory: errors.CategoryAuth,
+		},
+		{
 			name:         "token malformed",
 			message:      "token is malformed",
 			wantTextCode: errors.TextCodeTokenMalformed,
@@ -48,6 +55,27 @@ func TestMapAuthErrors_TextCodes(t *testing.T) {
 			name:         "account suspended",
 			message:      "user account is suspended",
 			wantTextCode: errors.TextCodeAccountSuspended,
+			wantCode:     403,
+			wantCategory: errors.CategoryAuth,
+		},
+		{
+			name:         "account disabled",
+			message:      "user account is disabled",
+			wantTextCode: errors.TextCodeAccountDisabled,
+			wantCode:     403,
+			wantCategory: errors.CategoryAuth,
+		},
+		{
+			name:         "account archived",
+			message:      "user account is archived",
+			wantTextCode: errors.TextCodeAccountArchived,
+			wantCode:     403,
+			wantCategory: errors.CategoryAuth,
+		},
+		{
+			name:         "account pending",
+			message:      "user account is pending",
+			wantTextCode: errors.TextCodeAccountPending,
 			wantCode:     403,
 			wantCategory: errors.CategoryAuth,
 		},
@@ -98,6 +126,13 @@ func TestMapOnboardingErrors_TextCodes(t *testing.T) {
 			wantCategory: errors.CategoryConflict,
 		},
 		{
+			name:         "token already used",
+			message:      "token already used",
+			wantTextCode: errors.TextCodeTokenAlreadyUsed,
+			wantCode:     409,
+			wantCategory: errors.CategoryConflict,
+		},
+		{
 			name:         "reset rate limit",
 			message:      "password reset rate limited",
 			wantTextCode: errors.TextCodeResetRateLimit,
@@ -115,6 +150,13 @@ func TestMapOnboardingErrors_TextCodes(t *testing.T) {
 			name:         "verification required",
 			message:      "verification required",
 			wantTextCode: errors.TextCodeVerificationRequired,
+			wantCode:     403,
+			wantCategory: errors.CategoryAuth,
+		},
+		{
+			name:         "verification expired",
+			message:      "verification token expired",
+			wantTextCode: errors.TextCodeVerificationExpired,
 			wantCode:     403,
 			wantCategory: errors.CategoryAuth,
 		},
@@ -161,5 +203,25 @@ func TestDefaultErrorMappers_PrefersOnboardingErrors(t *testing.T) {
 	mapped := errors.MapToError(err, errors.DefaultErrorMappers())
 	if mapped.TextCode != errors.TextCodeInviteExpired {
 		t.Fatalf("expected text code %q, got %q", errors.TextCodeInviteExpired, mapped.TextCode)
+	}
+}
+
+type statusError struct {
+	code    int
+	message string
+}
+
+func (e statusError) Error() string   { return e.message }
+func (e statusError) StatusCode() int { return e.code }
+
+func TestDefaultErrorMappers_PrefersOnboardingErrorsWithStatusCode(t *testing.T) {
+	t.Parallel()
+	err := statusError{code: 410, message: "invite token expired"}
+	mapped := errors.MapToError(err, errors.DefaultErrorMappers())
+	if mapped.TextCode != errors.TextCodeInviteExpired {
+		t.Fatalf("expected text code %q, got %q", errors.TextCodeInviteExpired, mapped.TextCode)
+	}
+	if mapped.Code != 410 {
+		t.Fatalf("expected code %d, got %d", 410, mapped.Code)
 	}
 }
