@@ -623,6 +623,40 @@ err := errors.New("not found", errors.CategoryNotFound).
 mappedErr := errors.MapToError(err, errors.DefaultErrorMappers())
 ```
 
+## Auth and Onboarding Text Codes
+
+Canonical `text_code` values for auth/onboarding flows (keep in sync with `go-auth/errors.go` and go-users auth context helpers):
+
+- Auth/session
+  - `INVALID_CREDENTIALS`
+  - `TOO_MANY_ATTEMPTS`
+  - `SESSION_NOT_FOUND`
+  - `SESSION_DECODE_ERROR`
+  - `CLAIMS_MAPPING_ERROR`
+  - `DATA_PARSE_ERROR`
+  - `EMPTY_PASSWORD_NOT_ALLOWED`
+  - `TOKEN_EXPIRED`
+  - `TOKEN_MALFORMED`
+  - `TOKEN_ALREADY_USED`
+  - `IMMUTABLE_CLAIM_MUTATION`
+- Account states
+  - `ACCOUNT_SUSPENDED`
+  - `ACCOUNT_DISABLED`
+  - `ACCOUNT_ARCHIVED`
+  - `ACCOUNT_PENDING`
+  - `ACCOUNT_LOCKED`
+- Onboarding/verification
+  - `RESET_RATE_LIMIT`
+  - `RESET_NOT_ALLOWED`
+  - `VERIFICATION_REQUIRED`
+  - `VERIFICATION_EXPIRED`
+  - `INVITE_EXPIRED`
+  - `INVITE_USED`
+  - `FEATURE_DISABLED`
+- Go-users context
+  - `ACTOR_CONTEXT_MISSING`
+  - `ACTOR_CONTEXT_INVALID`
+
 ## Enhanced Logging Integration
 
 Integrate with structured logging using slog with enhanced features:
