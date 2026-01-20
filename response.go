@@ -49,9 +49,9 @@ func MapToError(err error, mappers []ErrorMapper) *Error {
 
 func DefaultErrorMappers() []ErrorMapper {
 	return []ErrorMapper{
-		MapHTTPErrors,
 		MapOnboardingErrors,
 		MapAuthErrors,
+		MapHTTPErrors,
 	}
 }
 
@@ -74,14 +74,6 @@ func MapHTTPErrors(err error) *Error {
 func MapAuthErrors(err error) *Error {
 	msg := normalizeErrorMessage(err)
 	switch {
-	case containsAny(msg, "unauthorized", "authentication"):
-		return New(err.Error(), CategoryAuth).
-			WithCode(http.StatusUnauthorized).
-			WithTextCode("UNAUTHORIZED")
-	case containsAny(msg, "forbidden", "authorization"):
-		return New(err.Error(), CategoryAuthz).
-			WithCode(http.StatusForbidden).
-			WithTextCode("FORBIDDEN")
 	case containsAny(msg, "too many attempts", "too many login attempts"):
 		return New(err.Error(), CategoryRateLimit).
 			WithCode(http.StatusTooManyRequests).
@@ -110,6 +102,14 @@ func MapAuthErrors(err error) *Error {
 		return New(err.Error(), CategoryAuth).
 			WithCode(http.StatusForbidden).
 			WithTextCode(TextCodeAccountPending)
+	case containsAny(msg, "unauthorized", "authentication"):
+		return New(err.Error(), CategoryAuth).
+			WithCode(http.StatusUnauthorized).
+			WithTextCode("UNAUTHORIZED")
+	case containsAny(msg, "forbidden", "authorization"):
+		return New(err.Error(), CategoryAuthz).
+			WithCode(http.StatusForbidden).
+			WithTextCode("FORBIDDEN")
 	}
 	return nil
 }
