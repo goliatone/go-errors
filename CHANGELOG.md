@@ -1,5 +1,39 @@
 # Changelog
 
+# [0.10.0](https://github.com/goliatone/go-errors/compare/v0.9.0...v0.10.0) - (2026-01-20)
+
+## <!-- 1 -->🐛 Bug Fixes
+
+- Udpated map errors to respect order of errors ([9474adf](https://github.com/goliatone/go-errors/commit/9474adf070b789ab9fdfdc42bb8d1157270eb0f0))  - (goliatone)
+- Udpated map errors to respect order of errors ([fe90434](https://github.com/goliatone/go-errors/commit/fe90434cafe31947dfcae16c991e31c5e98aeac4))  - (goliatone)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.10.0 ([03dd646](https://github.com/goliatone/go-errors/commit/03dd6462c8d4ec8d73f6af88511852d7d4e5bef0))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- Auth tetxt code ([22f5eea](https://github.com/goliatone/go-errors/commit/22f5eeadc18ed7065118763552245b93a9e93175))  - (goliatone)
+- Mapper helper ([b15e1e1](https://github.com/goliatone/go-errors/commit/b15e1e1e86c8e43ea22cefac3525d7beb42e6925))  - (goliatone)
+- Onboarding mappers ([ae60031](https://github.com/goliatone/go-errors/commit/ae60031412174a2852a1269bb11cf66caa888a67))  - (goliatone)
+- Udpated auth error mapping ([38aa7fd](https://github.com/goliatone/go-errors/commit/38aa7fd482464711ff95c3f4a065fc3c1eba836c))  - (goliatone)
+- Cascade meta ([5fbc174](https://github.com/goliatone/go-errors/commit/5fbc1746057e01ab7386d34311c20dbbd66dadda))  - (goliatone)
+- Cascade meta ([73a397e](https://github.com/goliatone/go-errors/commit/73a397e8bfc54e3845689973c1453b7a93481d6a))  - (goliatone)
+
+## <!-- 22 -->🚧 WIP
+
+- Release handler ([0692c17](https://github.com/goliatone/go-errors/commit/0692c17ca488e911b429837cb179b5b7384f5845))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.9.0 ([3489f65](https://github.com/goliatone/go-errors/commit/3489f65358da66505e8709e52ba755a250636257))  - (goliatone)
+
+## <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- Update readme ([e66adec](https://github.com/goliatone/go-errors/commit/e66adec3b2718adaadfa959191724fbe1e108dca))  - (goliatone)
+- Update tests ([6af4712](https://github.com/goliatone/go-errors/commit/6af47123b1a27d36f8a77c638309a8f960bb0f5c))  - (goliatone)
+- Update readme ([982137c](https://github.com/goliatone/go-errors/commit/982137ce6823d4102a1e4725a5c5c9b83d552711))  - (goliatone)
+
 # [0.9.0](https://github.com/goliatone/go-errors/compare/v0.8.0...v0.9.0) - (2025-08-16)
 
 ## <!-- 13 -->📦 Bumps
