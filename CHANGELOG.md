@@ -1,5 +1,31 @@
 # Changelog
 
+# [0.11.0](https://github.com/goliatone/go-errors/compare/v0.10.0...v0.11.0) - (2026-06-15)
+
+## <!-- 1 -->🐛 Bug Fixes
+
+- Collector track errors ([e28b016](https://github.com/goliatone/go-errors/commit/e28b016e154c5a77cab8597cc029c4ce9bb2b6b5))  - (goliatone)
+- Typo and retry behavior ([1ea0697](https://github.com/goliatone/go-errors/commit/1ea06977fe05ef17c2ae3022e10ba03c13e8e09e))  - (goliatone)
+- Response nil handling ([b381d16](https://github.com/goliatone/go-errors/commit/b381d16cfd15c5a643ac414d1db5382227c4c9f6))  - (goliatone)
+- Populdate stracktrace, location, source ([ba97e0e](https://github.com/goliatone/go-errors/commit/ba97e0e0decf7fa18d688f9c2d0c32292ab7f4bf))  - (goliatone)
+
+## <!-- 13 -->📦 Bumps
+
+- Bump version: v0.11.0 ([ede8b60](https://github.com/goliatone/go-errors/commit/ede8b60a0797c13073776dc4738ccc537600375c))  - (goliatone)
+
+## <!-- 16 -->➕ Add
+
+- Location and severity to validation ([78ba536](https://github.com/goliatone/go-errors/commit/78ba536afa360300e8663ed5a2da09cbeb531e7d))  - (goliatone)
+- Location and severity to validation ([1ba0a51](https://github.com/goliatone/go-errors/commit/1ba0a51a3f8249bc247a51ab03ddfd4f2ebe3257))  - (goliatone)
+
+## <!-- 3 -->📚 Documentation
+
+- Update changelog for v0.10.0 ([e5233f0](https://github.com/goliatone/go-errors/commit/e5233f0affcfb0a35aee72449387a68376c8ad56))  - (goliatone)
+
+## <!-- 7 -->⚙️ Miscellaneous Tasks
+
+- Update tests ([671ac43](https://github.com/goliatone/go-errors/commit/671ac4365c8a59d65057c93da46386517d33c672))  - (goliatone)
+
 # [0.10.0](https://github.com/goliatone/go-errors/compare/v0.9.0...v0.10.0) - (2026-01-20)
 
 ## <!-- 1 -->🐛 Bug Fixes
