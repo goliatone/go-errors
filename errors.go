@@ -273,6 +273,16 @@ func (e *Error) Clone() *Error {
 		maps.Copy(clone.Metadata, e.Metadata)
 	}
 
+	if e.StackTrace != nil {
+		clone.StackTrace = make(StackTrace, len(e.StackTrace))
+		copy(clone.StackTrace, e.StackTrace)
+	}
+
+	if e.Location != nil {
+		location := *e.Location
+		clone.Location = &location
+	}
+
 	return &clone
 }
 
@@ -301,6 +311,8 @@ func Wrap(source error, category Category, message string) *Error {
 	if As(source, &e) {
 		nerr := e.Clone()
 		nerr.Message = fmt.Sprintf("%s: %s", message, e.Message)
+		nerr.Source = source
+		nerr.Location = e.Location
 		// Keep original location when wrapping existing Error
 		return nerr
 	}
