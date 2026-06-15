@@ -38,6 +38,8 @@ func NewValidation(message string, fieldErrors ...FieldError) *Error {
 		Message:          message,
 		ValidationErrors: fieldErrors,
 		Timestamp:        time.Now(),
+		Location:         captureLocation(1),
+		Severity:         SeverityError,
 	}
 }
 
@@ -54,6 +56,8 @@ func NewValidationFromMap(message string, fieldMap map[string]string) *Error {
 		Message:          message,
 		ValidationErrors: fieldErrors,
 		Timestamp:        time.Now(),
+		Location:         captureLocation(1),
+		Severity:         SeverityError,
 	}
 }
 
@@ -72,6 +76,8 @@ func NewValidationFromGroups(message string, groups map[string][]string) *Error 
 		Message:          message,
 		ValidationErrors: fieldErrors,
 		Timestamp:        time.Now(),
+		Location:         captureLocation(1),
+		Severity:         SeverityError,
 	}
 }
 
