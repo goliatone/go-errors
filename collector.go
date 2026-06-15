@@ -10,10 +10,15 @@ import (
 // for batch operations and complex error handling scenarios
 type ErrorCollector struct {
 	mu         sync.RWMutex
-	errors     []*Error
+	errors     []collectedError
 	maxErrors  int
 	strictMode bool
 	context    context.Context
+}
+
+type collectedError struct {
+	err       *Error
+	retryable *RetryableError
 }
 
 // CollectorOption defines functional options for ErrorCollector configuration
@@ -22,7 +27,7 @@ type CollectorOption func(*ErrorCollector)
 // NewCollector creates a new ErrorCollector with the provided options
 func NewCollector(opts ...CollectorOption) *ErrorCollector {
 	c := &ErrorCollector{
-		errors:     make([]*Error, 0),
+		errors:     make([]collectedError, 0),
 		maxErrors:  100, // Default maximum
 		strictMode: false,
 		context:    context.Background(),
@@ -68,6 +73,10 @@ func (c *ErrorCollector) Add(err error) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	if c.maxErrors <= 0 {
+		return false
+	}
+
 	// Check if we've reached the maximum
 	if len(c.errors) >= c.maxErrors {
 		if c.strictMode {
@@ -78,13 +87,22 @@ func (c *ErrorCollector) Add(err error) bool {
 	}
 
 	// Convert to our Error type if needed
+	var retryableErr *RetryableError
+	if As(err, &retryableErr) && retryableErr.BaseError != nil {
+		c.errors = append(c.errors, collectedError{
+			err:       retryableErr.BaseError,
+			retryable: retryableErr,
+		})
+		return true
+	}
+
 	var customErr *Error
 	if As(err, &customErr) {
-		c.errors = append(c.errors, customErr)
+		c.errors = append(c.errors, collectedError{err: customErr})
 	} else {
 		// Wrap foreign errors
 		wrappedErr := Wrap(err, CategoryInternal, err.Error())
-		c.errors = append(c.errors, wrappedErr)
+		c.errors = append(c.errors, collectedError{err: wrappedErr})
 	}
 
 	return true
@@ -111,7 +129,9 @@ func (c *ErrorCollector) Errors() []*Error {
 
 	// Return a copy to prevent external modification
 	result := make([]*Error, len(c.errors))
-	copy(result, c.errors)
+	for i, collected := range c.errors {
+		result[i] = collected.err
+	}
 	return result
 }
 
@@ -133,7 +153,7 @@ func (c *ErrorCollector) Merge() *Error {
 	}
 
 	if len(c.errors) == 1 {
-		return c.errors[0].Clone()
+		return c.errors[0].err.Clone()
 	}
 
 	// Create aggregate error with metadata about collected errors
@@ -158,13 +178,13 @@ func (c *ErrorCollector) Merge() *Error {
 			"error_count":    len(c.errors),
 			"category_stats": categoryStats,
 			"severity_stats": severityStats,
-			"aggregated_at":  c.errors[0].Timestamp, // Use first error's timestamp
+			"aggregated_at":  c.errors[0].err.Timestamp, // Use first error's timestamp
 		})
 
 	// Collect all validation errors
 	var allValidationErrors ValidationErrors
-	for _, err := range c.errors {
-		allValidationErrors = append(allValidationErrors, err.ValidationErrors...)
+	for _, collected := range c.errors {
+		allValidationErrors = append(allValidationErrors, collected.err.ValidationErrors...)
 	}
 	if len(allValidationErrors) > 0 {
 		aggregate.ValidationErrors = allValidationErrors
@@ -179,9 +199,9 @@ func (c *ErrorCollector) FilterBySeverity(min Severity) []*Error {
 	defer c.mu.RUnlock()
 
 	var filtered []*Error
-	for _, err := range c.errors {
-		if err.GetSeverity() >= min {
-			filtered = append(filtered, err)
+	for _, collected := range c.errors {
+		if collected.err.GetSeverity() >= min {
+			filtered = append(filtered, collected.err)
 		}
 	}
 	return filtered
@@ -193,9 +213,9 @@ func (c *ErrorCollector) FilterByCategory(cat Category) []*Error {
 	defer c.mu.RUnlock()
 
 	var filtered []*Error
-	for _, err := range c.errors {
-		if err.Category == cat {
-			filtered = append(filtered, err)
+	for _, collected := range c.errors {
+		if collected.err.Category == cat {
+			filtered = append(filtered, collected.err)
 		}
 	}
 	return filtered
@@ -207,8 +227,8 @@ func (c *ErrorCollector) GetValidationErrors() ValidationErrors {
 	defer c.mu.RUnlock()
 
 	var allValidationErrors ValidationErrors
-	for _, err := range c.errors {
-		allValidationErrors = append(allValidationErrors, err.ValidationErrors...)
+	for _, collected := range c.errors {
+		allValidationErrors = append(allValidationErrors, collected.err.ValidationErrors...)
 	}
 	return allValidationErrors
 }
@@ -224,8 +244,8 @@ func (c *ErrorCollector) CategoryStats() map[Category]int {
 // Must be called while holding at least a read lock
 func (c *ErrorCollector) categoryStatsUnsafe() map[Category]int {
 	stats := make(map[Category]int)
-	for _, err := range c.errors {
-		stats[err.Category]++
+	for _, collected := range c.errors {
+		stats[collected.err.Category]++
 	}
 	return stats
 }
@@ -266,8 +286,8 @@ func (c *ErrorCollector) SeverityDistribution() map[Severity]int {
 // Must be called while holding at least a read lock
 func (c *ErrorCollector) severityDistributionUnsafe() map[Severity]int {
 	stats := make(map[Severity]int)
-	for _, err := range c.errors {
-		stats[err.GetSeverity()]++
+	for _, collected := range c.errors {
+		stats[collected.err.GetSeverity()]++
 	}
 	return stats
 }
@@ -298,9 +318,9 @@ func (c *ErrorCollector) GetAllValidationErrors() ValidationErrors {
 	defer c.mu.RUnlock()
 
 	var allValidationErrors ValidationErrors
-	for _, err := range c.errors {
+	for _, collected := range c.errors {
 		// Get all validation errors (including from wrapped errors)
-		allValidationErrors = append(allValidationErrors, err.AllValidationErrors()...)
+		allValidationErrors = append(allValidationErrors, collected.err.AllValidationErrors()...)
 	}
 	return allValidationErrors
 }
@@ -313,7 +333,7 @@ func (c *ErrorCollector) AddRetryable(err error, category Category, message stri
 	} else {
 		retryableErr = NewRetryable(message, category)
 	}
-	c.Add(retryableErr.BaseError)
+	c.Add(retryableErr)
 }
 
 // HasRetryableErrors returns true if any collected errors are retryable
@@ -321,10 +341,8 @@ func (c *ErrorCollector) HasRetryableErrors() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	for _, err := range c.errors {
-		// Check if this error would be retryable by wrapping it in RetryableError
-		// and checking its retryability based on severity
-		if err.GetSeverity() < SeverityCritical {
+	for _, collected := range c.errors {
+		if collected.retryable != nil && collected.retryable.IsRetryable() {
 			return true
 		}
 	}
@@ -338,10 +356,9 @@ func (c *ErrorCollector) GetRetryableErrors() []*Error {
 	defer c.mu.RUnlock()
 
 	var retryableErrors []*Error
-	for _, err := range c.errors {
-		// Errors with severity below Critical are potentially retryable
-		if err.GetSeverity() < SeverityCritical {
-			retryableErrors = append(retryableErrors, err)
+	for _, collected := range c.errors {
+		if collected.retryable != nil && collected.retryable.IsRetryable() {
+			retryableErrors = append(retryableErrors, collected.err)
 		}
 	}
 	return retryableErrors
@@ -361,7 +378,7 @@ func (c *ErrorCollector) ToErrorResponse(includeStack bool) *ErrorResponse {
 
 	if len(c.errors) == 1 {
 		// For single error, use its existing ToErrorResponse method
-		response := c.errors[0].ToErrorResponse(includeStack, c.errors[0].StackTrace)
+		response := c.errors[0].err.ToErrorResponse(includeStack, c.errors[0].err.StackTrace)
 		return &response
 	}
 
@@ -383,7 +400,7 @@ func (c *ErrorCollector) mergeUnsafe() *Error {
 	}
 
 	if len(c.errors) == 1 {
-		return c.errors[0].Clone()
+		return c.errors[0].err.Clone()
 	}
 
 	// Create aggregate error with metadata about collected errors
@@ -408,13 +425,13 @@ func (c *ErrorCollector) mergeUnsafe() *Error {
 			"error_count":    len(c.errors),
 			"category_stats": categoryStats,
 			"severity_stats": severityStats,
-			"aggregated_at":  c.errors[0].Timestamp, // Use first error's timestamp
+			"aggregated_at":  c.errors[0].err.Timestamp, // Use first error's timestamp
 		})
 
 	// Collect all validation errors
 	var allValidationErrors ValidationErrors
-	for _, err := range c.errors {
-		allValidationErrors = append(allValidationErrors, err.ValidationErrors...)
+	for _, collected := range c.errors {
+		allValidationErrors = append(allValidationErrors, collected.err.ValidationErrors...)
 	}
 	if len(allValidationErrors) > 0 {
 		aggregate.ValidationErrors = allValidationErrors
@@ -451,8 +468,8 @@ func (c *ErrorCollector) ToSlogAttributes() []slog.Attr {
 
 		// Validation error count
 		var allValidationErrors ValidationErrors
-		for _, err := range c.errors {
-			allValidationErrors = append(allValidationErrors, err.ValidationErrors...)
+		for _, collected := range c.errors {
+			allValidationErrors = append(allValidationErrors, collected.err.ValidationErrors...)
 		}
 		if len(allValidationErrors) > 0 {
 			attrs = append(attrs, slog.Int("validation_error_count", len(allValidationErrors)))
@@ -477,7 +494,9 @@ func (c *ErrorCollector) LogErrors(logger *slog.Logger) {
 
 	c.mu.RLock()
 	errors := make([]*Error, len(c.errors))
-	copy(errors, c.errors)
+	for i, collected := range c.errors {
+		errors[i] = collected.err
+	}
 	c.mu.RUnlock()
 
 	// Add collector context to each log entry
@@ -521,9 +540,9 @@ func (c *ErrorCollector) LogErrors(logger *slog.Logger) {
 // Must be called while holding at least a read lock
 func (c *ErrorCollector) getRetryableErrorsUnsafe() []*Error {
 	var retryableErrors []*Error
-	for _, err := range c.errors {
-		if err.GetSeverity() < SeverityCritical {
-			retryableErrors = append(retryableErrors, err)
+	for _, collected := range c.errors {
+		if collected.retryable != nil && collected.retryable.IsRetryable() {
+			retryableErrors = append(retryableErrors, collected.err)
 		}
 	}
 	return retryableErrors
