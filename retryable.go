@@ -18,6 +18,13 @@ func (r *RetryableError) Error() string {
 	return "retryable error: <nil>"
 }
 
+func (r *RetryableError) Unwrap() error {
+	if r == nil {
+		return nil
+	}
+	return r.BaseError
+}
+
 // IsRetryable returns whether this error should trigger a retry
 // Critical and Fatal errors are never retryable regardless of the retryable flag
 func (r *RetryableError) IsRetryable() bool {
@@ -32,7 +39,7 @@ func (r *RetryableError) IsRetryable() bool {
 
 // RetryDelay calculates the delay before the next retry attempt
 // Uses exponential backoff: baseDelay * (2^(attempt-1))
-func (r *RetryableError) RetryDealy(attempt int) time.Duration {
+func (r *RetryableError) RetryDelay(attempt int) time.Duration {
 	if attempt <= 0 {
 		return r.baseDelay
 	}
@@ -46,6 +53,11 @@ func (r *RetryableError) RetryDealy(attempt int) time.Duration {
 	}
 
 	return delay
+}
+
+// RetryDealy is kept for backward compatibility. Use RetryDelay.
+func (r *RetryableError) RetryDealy(attempt int) time.Duration {
+	return r.RetryDelay(attempt)
 }
 
 // WithRetryable sets whether this error should be retryable
@@ -141,7 +153,8 @@ func NewRetryableExternal(message string) *RetryableError {
 // IsRetryableError checks if an error implements the IsRetryable interface
 // and returns true
 func IsRetryableError(err error) bool {
-	if retryable, ok := err.(interface{ IsRetryable() bool }); ok {
+	var retryable interface{ IsRetryable() bool }
+	if As(err, &retryable) {
 		return retryable.IsRetryable()
 	}
 	return false
