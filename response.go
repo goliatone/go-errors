@@ -14,12 +14,22 @@ type ErrorResponse struct {
 }
 
 func (e *Error) ToErrorResponse(includeStack bool, stackTrace StackTrace) ErrorResponse {
+	responseError := e.Clone()
 	response := ErrorResponse{
-		Error: e,
+		Error: responseError,
+	}
+
+	if response.Error == nil {
+		return response
 	}
 
 	if includeStack {
-		response.Error.StackTrace = stackTrace
+		if stackTrace != nil {
+			response.Error.StackTrace = make(StackTrace, len(stackTrace))
+			copy(response.Error.StackTrace, stackTrace)
+		} else {
+			response.Error.StackTrace = nil
+		}
 	} else {
 		response.Error.StackTrace = nil
 	}
@@ -29,12 +39,19 @@ func (e *Error) ToErrorResponse(includeStack bool, stackTrace StackTrace) ErrorR
 
 // MapToError converts any error to our Error type using provided mappers
 func MapToError(err error, mappers []ErrorMapper) *Error {
+	if err == nil {
+		return nil
+	}
+
 	var customErr *Error
 	if As(err, &customErr) {
 		return customErr
 	}
 
 	for _, mapper := range mappers {
+		if mapper == nil {
+			continue
+		}
 		if mappedErr := mapper(err); mappedErr != nil {
 			return mappedErr
 		}
