@@ -15,7 +15,7 @@ func FromOzzoValidation(err error, message string) *Error {
 
 	var validationErrors validation.Errors
 	if As(err, &validationErrors) {
-		return fromOzzoValidationErrors(validationErrors, message)
+		return fromOzzoValidationErrors(validationErrors, message, captureLocation(1))
 	}
 
 	// other types create a general validation error
@@ -24,10 +24,12 @@ func FromOzzoValidation(err error, message string) *Error {
 		Message:   message,
 		Source:    err,
 		Timestamp: time.Now(),
+		Location:  captureLocation(1),
+		Severity:  SeverityError,
 	}
 }
 
-func fromOzzoValidationErrors(validationErrors validation.Errors, message string) *Error {
+func fromOzzoValidationErrors(validationErrors validation.Errors, message string, location *ErrorLocation) *Error {
 	var fieldErrors ValidationErrors
 
 	for field, fieldErr := range validationErrors {
@@ -52,6 +54,8 @@ func fromOzzoValidationErrors(validationErrors validation.Errors, message string
 		Message:          message,
 		ValidationErrors: fieldErrors,
 		Timestamp:        time.Now(),
+		Location:         location,
+		Severity:         SeverityError,
 	}
 }
 
