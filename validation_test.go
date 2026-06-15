@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/goliatone/go-errors"
 )
 
@@ -77,6 +78,9 @@ func TestNewValidation(t *testing.T) {
 	if len(err.ValidationErrors) != 2 {
 		t.Errorf("Expected 2 validation errors, got %d", len(err.ValidationErrors))
 	}
+	if err.Severity != errors.SeverityError {
+		t.Errorf("Expected SeverityError, got %v", err.Severity)
+	}
 	if err.ValidationErrors[0].Field != "email" {
 		t.Errorf("Expected first error field=email, got %s", err.ValidationErrors[0].Field)
 	}
@@ -96,6 +100,9 @@ func TestNewValidationFromMap(t *testing.T) {
 	}
 	if len(err.ValidationErrors) != 2 {
 		t.Errorf("Expected 2 validation errors, got %d", len(err.ValidationErrors))
+	}
+	if err.Severity != errors.SeverityError {
+		t.Errorf("Expected SeverityError, got %v", err.Severity)
 	}
 
 	// Check that both fields are present (order may vary due to map iteration)
@@ -125,6 +132,9 @@ func TestNewValidationFromGroups(t *testing.T) {
 	}
 	if len(err.ValidationErrors) != 3 {
 		t.Errorf("Expected 3 validation errors, got %d", len(err.ValidationErrors))
+	}
+	if err.Severity != errors.SeverityError {
+		t.Errorf("Expected SeverityError, got %v", err.Severity)
 	}
 
 	// Verify all error messages are present
@@ -175,5 +185,21 @@ func TestGetValidationErrors(t *testing.T) {
 	_, found = errors.GetValidationErrors(regularErr)
 	if found {
 		t.Error("Expected not to find validation errors in regular error")
+	}
+}
+
+func TestFromOzzoValidationDefaults(t *testing.T) {
+	err := errors.FromOzzoValidation(validation.Errors{
+		"email": fmt.Errorf("is required"),
+	}, "validation failed")
+
+	if err == nil {
+		t.Fatal("expected validation error")
+	}
+	if err.Severity != errors.SeverityError {
+		t.Errorf("Expected SeverityError, got %v", err.Severity)
+	}
+	if err.Location == nil {
+		t.Error("Expected location to be captured")
 	}
 }

@@ -3,9 +3,11 @@ package errors
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestSeverity_String(t *testing.T) {
@@ -214,6 +216,21 @@ func TestRetryableErrorWithSeverity(t *testing.T) {
 
 	if !warningRetryErr.IsRetryable() {
 		t.Error("Warning severity errors should be retryable")
+	}
+}
+
+func TestRetryableErrorDelayAndWrappedDetection(t *testing.T) {
+	retryErr := NewRetryableOperation("temporary failure")
+	if retryErr.RetryDelay(3) != 2*time.Second {
+		t.Fatalf("RetryDelay(3) = %v, want 2s", retryErr.RetryDelay(3))
+	}
+	if retryErr.RetryDealy(3) != retryErr.RetryDelay(3) {
+		t.Fatal("RetryDealy should remain an alias for RetryDelay")
+	}
+
+	wrapped := fmt.Errorf("outer: %w", retryErr)
+	if !IsRetryableError(wrapped) {
+		t.Fatal("expected wrapped retryable error to be detected")
 	}
 }
 

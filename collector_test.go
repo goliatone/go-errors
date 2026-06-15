@@ -324,8 +324,11 @@ func TestErrorCollector_RetryableErrors(t *testing.T) {
 	// Add non-retryable (critical) error
 	c.Add(NewCritical("critical error", CategoryInternal))
 
-	// Add regular error (potentially retryable)
+	// Add regular error without retry policy
 	c.Add(New("regular error", CategoryOperation))
+
+	// Add explicit non-retryable error
+	c.Add(NewNonRetryable("invalid request", CategoryValidation))
 
 	// Test HasRetryableErrors
 	if !c.HasRetryableErrors() {
@@ -334,8 +337,20 @@ func TestErrorCollector_RetryableErrors(t *testing.T) {
 
 	// Test GetRetryableErrors
 	retryableErrors := c.GetRetryableErrors()
-	if len(retryableErrors) != 2 { // external and operation errors are retryable
-		t.Errorf("GetRetryableErrors() = %d errors, want 2", len(retryableErrors))
+	if len(retryableErrors) != 1 {
+		t.Errorf("GetRetryableErrors() = %d errors, want 1", len(retryableErrors))
+	}
+}
+
+func TestErrorCollector_MaxErrorsNonPositive(t *testing.T) {
+	for _, max := range []int{0, -1} {
+		c := NewCollector(WithMaxErrors(max))
+		if c.Add(New("should not be collected")) {
+			t.Fatalf("Add() with max=%d returned true, want false", max)
+		}
+		if c.Count() != 0 {
+			t.Fatalf("Count() with max=%d = %d, want 0", max, c.Count())
+		}
 	}
 }
 

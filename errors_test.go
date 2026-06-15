@@ -2,6 +2,7 @@ package errors_test
 
 import (
 	"encoding/json"
+	stdErrors "errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -281,6 +282,48 @@ func TestWrap(t *testing.T) {
 	}
 	if err.Timestamp.IsZero() {
 		t.Error("Expected Timestamp to be set")
+	}
+}
+
+func TestWrapExistingErrorPreservesChain(t *testing.T) {
+	baseErr := errors.New("base error", errors.CategoryValidation)
+	outerErr := fmt.Errorf("outer context: %w", baseErr)
+
+	wrappedErr := errors.Wrap(outerErr, errors.CategoryInternal, "wrapped error")
+
+	if !stdErrors.Is(wrappedErr, outerErr) {
+		t.Fatal("expected wrapped error to unwrap to original outer error")
+	}
+	if !stdErrors.Is(wrappedErr, baseErr) {
+		t.Fatal("expected wrapped error to preserve nested rich error chain")
+	}
+	if wrappedErr.Source != outerErr {
+		t.Fatalf("Source = %v, want original outer error", wrappedErr.Source)
+	}
+}
+
+func TestError_ToErrorResponseDoesNotMutateOriginal(t *testing.T) {
+	err := errors.New("with stack", errors.CategoryInternal).WithStackTrace()
+	originalStackLen := len(err.StackTrace)
+	if originalStackLen == 0 {
+		t.Fatal("expected test error to have a stack trace")
+	}
+
+	response := err.ToErrorResponse(false, err.StackTrace)
+	if response.Error == err {
+		t.Fatal("ToErrorResponse should return a response copy, not the original error pointer")
+	}
+	if len(response.Error.StackTrace) != 0 {
+		t.Fatal("expected response stack trace to be omitted")
+	}
+	if len(err.StackTrace) != originalStackLen {
+		t.Fatalf("original stack trace length = %d, want %d", len(err.StackTrace), originalStackLen)
+	}
+}
+
+func TestMapToErrorNil(t *testing.T) {
+	if got := errors.MapToError(nil, errors.DefaultErrorMappers()); got != nil {
+		t.Fatalf("MapToError(nil) = %v, want nil", got)
 	}
 }
 
